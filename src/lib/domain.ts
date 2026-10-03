@@ -23,6 +23,13 @@ export function urgencyOf(priority: number): UrgencyLevel {
 export const STATUSES = ["new", "sent", "accepted", "resolved"] as const;
 export type ReportStatus = (typeof STATUSES)[number];
 
+// Residents follow the report only up to "Przyjęte"; closing it is internal to the city.
+export const RESIDENT_STATUSES = ["new", "sent", "accepted"] as const;
+
+export function residentStatus(status: ReportStatus): ReportStatus {
+  return status === "resolved" ? "accepted" : status;
+}
+
 export const STATUS_LABELS: Record<ReportStatus, string> = {
   new: "Nowe",
   sent: "Wysłane",

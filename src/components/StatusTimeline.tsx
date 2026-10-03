@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icons";
-import { STATUSES, STATUS_LABELS, type ReportStatus } from "@/lib/domain";
+import { RESIDENT_STATUSES, STATUS_LABELS, residentStatus, type ReportStatus } from "@/lib/domain";
 import { formatDateTime } from "@/lib/format";
 
 const PENDING_TEXT: Record<ReportStatus, string> = {
@@ -9,7 +9,7 @@ const PENDING_TEXT: Record<ReportStatus, string> = {
   resolved: "Oczekuje na naprawę",
 };
 
-// Nowe → Wysłane → Przyjęte → Zrealizowane, with the current step ringed.
+// Resident timeline: Nowe → Wysłane → Przyjęte, with the current step ringed.
 export function StatusTimeline({
   status,
   history,
@@ -19,15 +19,15 @@ export function StatusTimeline({
   history: { status: ReportStatus; changedAt: string }[];
   unitShort: string;
 }) {
-  const current = STATUSES.indexOf(status);
+  const current = RESIDENT_STATUSES.indexOf(residentStatus(status) as (typeof RESIDENT_STATUSES)[number]);
   const when = new Map(history.map((h) => [h.status, h.changedAt]));
 
   return (
     <ol className="flex flex-col">
-      {STATUSES.map((s, i) => {
-        const done = i < current || (i === current && s === "resolved");
+      {RESIDENT_STATUSES.map((s, i) => {
+        const done = i < current;
         const isCurrent = i === current && !done;
-        const last = i === STATUSES.length - 1;
+        const last = i === RESIDENT_STATUSES.length - 1;
         const at = when.get(s);
         return (
           <li key={s} className="flex gap-3.5">

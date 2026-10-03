@@ -9,6 +9,7 @@ import { CATEGORIES } from "@/config/categories";
 import { unitById } from "@/config/units";
 import type { ReportDTO } from "@/lib/api-types";
 import { fetchReports } from "@/lib/client/functions";
+import { residentStatus } from "@/lib/domain";
 import { supabaseBrowser } from "@/lib/supabase";
 
 // Screen 8: report status. Updates live when the city panel changes the status.
@@ -86,7 +87,7 @@ export default function ReportStatusPage() {
           </div>
         )}
         <div className="flex flex-wrap gap-2">
-          <StatusBadge status={report.status} />
+          <StatusBadge status={residentStatus(report.status)} />
           {report.reportersCount > 1 && (
             <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[13px] font-semibold text-text-2">
               <Icon name="users" size={14} stroke={2} />

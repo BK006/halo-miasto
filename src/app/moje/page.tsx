@@ -9,6 +9,7 @@ import { CATEGORIES } from "@/config/categories";
 import type { ReportDTO } from "@/lib/api-types";
 import { clearSession, getMyReportIds, getSession } from "@/lib/client/device";
 import { fetchMyReports, fetchReports } from "@/lib/client/functions";
+import { residentStatus } from "@/lib/domain";
 import { formatShortDate, plural } from "@/lib/format";
 
 // Screen 9: reports sent from this device.
@@ -83,7 +84,7 @@ export default function MyReportsPage() {
                       {r.address} · {formatShortDate(r.createdAt)}
                     </div>
                     <div className="mt-1 flex gap-1.5">
-                      <StatusBadge status={r.status} />
+                      <StatusBadge status={residentStatus(r.status)} />
                     </div>
                   </div>
                   <span className="text-disabled">
