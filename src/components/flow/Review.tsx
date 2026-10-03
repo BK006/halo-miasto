@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
-import { BottomActions, CategoryChip, PrimaryButton, Screen, TopBar, UrgencyBadge } from "@/components/ui";
+import { BottomActions, CategoryChip, PrimaryButton, Screen, TopBar } from "@/components/ui";
 import { PLATES_ALLOWED } from "@/config/categories";
 import type { Unit } from "@/config/units";
 import type { Place } from "@/lib/client/location";
@@ -96,8 +96,8 @@ export function Review({
           <img src={photo} alt="Zdjęcie zgłoszenia" className="h-24 w-24 flex-none rounded-[14px] object-cover" />
           <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
             <CategoryChip category={analysis.category} />
-            <UrgencyBadge priority={analysis.priority} />
-            <span className="text-sm leading-5 text-text-2">{analysis.priority_reason_pl}</span>
+            {/* Priority is for the city only – residents see what the AI recognised. */}
+            <span className="text-sm leading-5 text-text-2">{analysis.summary_pl}</span>
           </div>
         </div>
 

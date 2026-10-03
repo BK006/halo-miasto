@@ -16,6 +16,11 @@ const ITEMS: { icon: IconName; title: string; body: string }[] = [
     body: "Tylko w chwili zrobienia zdjęcia, żeby wskazać urzędowi miejsce.",
   },
   {
+    icon: "bell",
+    title: "Numer telefonu",
+    body: "Zamiast konta i hasła. Służy do logowania i powiadomień o statusie zgłoszeń.",
+  },
+  {
     icon: "building",
     title: "Treść zgłoszenia",
     body: "Trafia wyłącznie do właściwego urzędu. Nie udostępniamy jej nikomu innemu.",
@@ -36,7 +41,7 @@ export function Consent({ onAccept }: { onAccept: () => void }) {
         <div className="flex flex-col gap-2.5">
           <h1 className="text-[28px] font-bold leading-[34px] tracking-[-0.01em]">Zanim zrobisz pierwsze zdjęcie</h1>
           <p className="text-pretty text-base leading-6 text-text-2">
-            Twoje zgłoszenia trafiają do urzędu miasta. Żeby to zadziałało, przetwarzamy trzy rzeczy.
+            Twoje zgłoszenia trafiają do urzędu miasta. Żeby to zadziałało, przetwarzamy cztery rzeczy.
           </p>
         </div>
         <div className="flex flex-col gap-5">
@@ -66,7 +71,7 @@ export function Consent({ onAccept }: { onAccept: () => void }) {
               urządzeniu przed wysłaniem. Tablice rejestracyjne zostawiamy tylko w zgłoszeniach dotyczących
               parkowania.
             </p>
-            <p>Nie zakładamy konta. Zgodę możesz wycofać, czyszcząc dane strony w przeglądarce.</p>
+            <p>Nie zakładamy konta z hasłem – logujesz się numerem telefonu. Zgodę możesz wycofać, wylogowując się i czyszcząc dane strony w przeglądarce.</p>
           </div>
         )}
       </div>

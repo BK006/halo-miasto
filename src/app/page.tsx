@@ -6,6 +6,7 @@ import { Analyzing } from "@/components/flow/Analyzing";
 import { Camera, type CapturedPhoto } from "@/components/flow/Camera";
 import { CategoryPicker } from "@/components/flow/CategoryPicker";
 import { Consent } from "@/components/flow/Consent";
+import { PhoneLogin } from "@/components/flow/PhoneLogin";
 import { Retake } from "@/components/flow/Retake";
 import { Review } from "@/components/flow/Review";
 import { Thanks } from "@/components/flow/Thanks";
@@ -15,7 +16,7 @@ import { unitFor, type Unit } from "@/config/units";
 import type { CreateReportRequest, CreateReportResponse } from "@/lib/api-types";
 import { analyzePhoto } from "@/lib/client/analyze";
 import { createReport } from "@/lib/client/functions";
-import { addMyReport, getConsent, getDeviceId, setConsent } from "@/lib/client/device";
+import { addMyReport, getConsent, getDeviceId, getSession, setConsent, setSession, type Session } from "@/lib/client/device";
 import { preloadFaceDetector, preparePhoto, type PreparedPhoto } from "@/lib/client/image";
 import {
   DEFAULT_CENTER,
@@ -32,6 +33,7 @@ const LocationPicker = dynamic(() => import("@/components/map/LocationPicker"), 
 type Step =
   | { name: "loading" }
   | { name: "consent" }
+  | { name: "login" }
   | { name: "camera" }
   | { name: "analyzing"; phase: "preparing" | "analyzing" }
   | { name: "retake"; hint: string }
@@ -70,8 +72,9 @@ export default function ReportFlow() {
   // Initial step depends on localStorage, which only exists on the client.
   useEffect(() => {
     const consented = getConsent() === CONSENT_VERSION;
+    const hasSession = getSession() !== null;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time client-only bootstrap
-    setStep(consented ? { name: "camera" } : { name: "consent" });
+    setStep(!consented ? { name: "consent" } : !hasSession ? { name: "login" } : { name: "camera" });
     if (consented) {
       preloadFaceDetector();
       void locate();
@@ -82,6 +85,11 @@ export default function ReportFlow() {
     setConsent(CONSENT_VERSION);
     preloadFaceDetector();
     void locate();
+    setStep(getSession() ? { name: "camera" } : { name: "login" });
+  }
+
+  function signedIn(session: Session) {
+    setSession(session);
     setStep({ name: "camera" });
   }
 
@@ -203,6 +211,9 @@ export default function ReportFlow() {
       break;
     case "consent":
       screen = <Consent onAccept={acceptConsent} />;
+      break;
+    case "login":
+      screen = <PhoneLogin onDone={signedIn} />;
       break;
     case "camera":
       screen = (

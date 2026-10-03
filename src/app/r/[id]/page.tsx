@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
 import { StatusTimeline } from "@/components/StatusTimeline";
-import { Screen, Spinner, StatusBadge, TopBar, UrgencyBadge } from "@/components/ui";
+import { Screen, Spinner, StatusBadge, TopBar } from "@/components/ui";
 import { CATEGORIES } from "@/config/categories";
 import { unitById } from "@/config/units";
 import type { ReportDTO } from "@/lib/api-types";
@@ -67,7 +67,6 @@ export default function ReportStatusPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={report.status} />
-          <UrgencyBadge priority={report.priority} />
           {report.reportersCount > 1 && (
             <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[13px] font-semibold text-text-2">
               <Icon name="users" size={14} stroke={2} />

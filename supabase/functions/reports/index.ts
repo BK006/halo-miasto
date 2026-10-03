@@ -1,15 +1,17 @@
 // Supabase Edge Function: create and read reports.
 //   POST              → submit a reviewed report (rate limit → duplicate merge → store → e-mail → "sent")
-//   GET ?ids=a,b,c    → reports with status history and signed photo URLs
+//   GET ?ids=a,b,c    → reports with status history and signed photo URLs (status links)
+//   GET ?mine=1       → reports submitted by the signed-in phone number (x-session header)
 //
 // Secrets: the service key comes from the platform (SUPABASE_SECRET_KEYS / SUPABASE_SERVICE_ROLE_KEY);
 // RESEND_API_KEY, DEMO_EMAIL_TO and EMAIL_FROM are Edge Function secrets. Nothing lives in the app's env.
 // Auth: publishable key in the `apikey` header, checked in code (verify_jwt is off for non-JWT keys).
+// Resident identity: session token from the `auth` function in the `x-session` header.
 //
 // Keep UNITS/ROUTING/LABELS in sync with src/config/units.ts and src/config/categories.ts.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@4";
 
 const UNITS: Record<string, { name: string; email: string }> = {
@@ -43,7 +45,7 @@ const SIGNED_URL_TTL_S = 60 * 60;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization",
+  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization, x-session",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>
@@ -67,6 +69,16 @@ function admin() {
   return createClient(Deno.env.get("SUPABASE_URL")!, secret, { auth: { persistSession: false } });
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Phone number of the signed-in resident, or null.
+async function sessionPhone(req: Request, db: SupabaseClient): Promise<string | null> {
+  const token = req.headers.get("x-session");
+  if (!token || !UUID.test(token)) return null;
+  const { data } = await db.from("resident_sessions").select("phone").eq("token", token).maybeSingle();
+  return data?.phone ?? null;
+}
+
 const Body = z.object({
   deviceId: z.uuid(),
   consentVersion: z.string().min(1),
@@ -88,7 +100,7 @@ Deno.serve(async (req) => {
   if (!isAllowedKey(req.headers.get("apikey"))) return json({ error: "Unauthorized" }, 401);
   try {
     if (req.method === "POST") return await createReport(req);
-    if (req.method === "GET") return await listReports(new URL(req.url));
+    if (req.method === "GET") return await listReports(req, new URL(req.url));
     return json({ error: "Method not allowed" }, 405);
   } catch (err) {
     console.error("reports failed", err);
@@ -101,14 +113,13 @@ async function createReport(req: Request) {
   if (!parsed.success) return json({ error: "Nieprawidłowe dane zgłoszenia." }, 400);
   const b = parsed.data;
   const db = admin();
+  const phone = await sessionPhone(req, db);
 
-  // 1. Rate limit per device.
+  // 1. Rate limit per phone number (or per device when not signed in).
   const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  const { count, error: countErr } = await db
-    .from("submissions")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", b.deviceId)
-    .gte("created_at", since);
+  let countQuery = db.from("submissions").select("id", { count: "exact", head: true }).gte("created_at", since);
+  countQuery = phone ? countQuery.eq("phone", phone) : countQuery.eq("user_id", b.deviceId);
+  const { count, error: countErr } = await countQuery;
   if (countErr) throw countErr;
   if ((count ?? 0) >= RATE_LIMIT_PER_HOUR) {
     return json({ error: `Limit to ${RATE_LIMIT_PER_HOUR} zgłoszeń na godzinę. Spróbuj później.` }, 429);
@@ -122,6 +133,7 @@ async function createReport(req: Request) {
 
   const unitId = CATEGORIES[b.category].unit;
   const unit = UNITS[unitId];
+  const submission = { user_id: b.deviceId, phone, photo_path: photoPath, consent_version: b.consentVersion };
 
   // 2. Same category nearby and recent → join the existing report.
   const { data: dupId, error: dupErr } = await db.rpc("find_duplicate", {
@@ -142,12 +154,7 @@ async function createReport(req: Request) {
     if (error || !existing) throw error;
     const reportersCount = existing.reporters_count + 1;
     await db.from("reports").update({ reporters_count: reportersCount }).eq("id", existing.id);
-    await db.from("submissions").insert({
-      report_id: existing.id,
-      user_id: b.deviceId,
-      photo_path: photoPath,
-      consent_version: b.consentVersion,
-    });
+    await db.from("submissions").insert({ report_id: existing.id, ...submission });
     return json({
       id: existing.id,
       publicNo: existing.public_no,
@@ -182,12 +189,7 @@ async function createReport(req: Request) {
     .single();
   if (insErr || !report) throw insErr;
 
-  await db.from("submissions").insert({
-    report_id: report.id,
-    user_id: b.deviceId,
-    photo_path: photoPath,
-    consent_version: b.consentVersion,
-  });
+  await db.from("submissions").insert({ report_id: report.id, ...submission });
 
   // 4. Deliver (demo inbox). Without e-mail config the demo still advances to "sent";
   //    the history note records what actually happened.
@@ -273,12 +275,26 @@ async function sendEmail(r: {
   }
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-async function listReports(url: URL) {
-  const ids = (url.searchParams.get("ids") ?? "").split(",").filter((id) => UUID.test(id)).slice(0, 50);
-  if (ids.length === 0) return json({ reports: [] });
+async function listReports(req: Request, url: URL) {
   const db = admin();
+  let ids: string[];
+
+  if (url.searchParams.get("mine")) {
+    const phone = await sessionPhone(req, db);
+    if (!phone) return json({ error: "Zaloguj się numerem telefonu." }, 401);
+    const { data, error } = await db
+      .from("submissions")
+      .select("report_id, created_at")
+      .eq("phone", phone)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    ids = [...new Set((data ?? []).map((s) => s.report_id as string))].slice(0, 50);
+  } else {
+    ids = (url.searchParams.get("ids") ?? "").split(",").filter((id) => UUID.test(id)).slice(0, 50);
+  }
+  if (ids.length === 0) return json({ reports: [] });
+
   const { data, error } = await db
     .from("reports")
     .select(
@@ -320,6 +336,6 @@ async function listReports(url: URL) {
       },
     ]),
   );
-  // Keep the caller's order (most recent first for "Moje zgłoszenia").
+  // Keep the order of ids (most recent first for "Moje zgłoszenia").
   return json({ reports: ids.map((id) => byId.get(id)).filter(Boolean) });
 }

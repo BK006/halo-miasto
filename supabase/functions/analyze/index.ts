@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
   const when = (takenAt ? new Date(takenAt) : new Date()).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
   let context = `Adres: ${address || "nieznany adres"}\nWspółrzędne: ${lat.toFixed(6)}, ${lng.toFixed(6)}\nData zdjęcia: ${when}`;
   if (category) {
-    context += `\nThe resident confirmed the category is "${category}". Use it, set is_city_issue to true and draft the report even if the photo is unclear.`;
+    context += `\nThe resident picked the category "${category}" by hand. Use it and draft the report even if the photo is blurry or ambiguous. Still set is_city_issue to false if the photo clearly shows no public-space problem at all (selfie, person posing, food, screenshot, indoor private room).`;
   }
 
   try {

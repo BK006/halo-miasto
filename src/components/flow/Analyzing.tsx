@@ -52,7 +52,7 @@ export function Analyzing({
           <span className="text-[22px] font-semibold leading-7">Analizuję zdjęcie…</span>
         </div>
         <p className="text-[15px] leading-[22px] text-text-2">
-          Rozpoznaję problem i oceniam pilność. Zwykle trwa to kilka sekund.
+          Rozpoznaję problem i przygotowuję zgłoszenie. Zwykle trwa to kilka sekund.
         </p>
         <div className="mt-2 flex flex-col gap-2.5 text-[15px] leading-[22px]">
           <Step state={phase === "preparing" ? "active" : "done"}>{facesLabel}</Step>

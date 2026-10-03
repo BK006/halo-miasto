@@ -1,23 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
 import { BottomActions, Screen, Spinner, StatusBadge } from "@/components/ui";
 import { CATEGORIES } from "@/config/categories";
 import type { ReportDTO } from "@/lib/api-types";
-import { getMyReportIds } from "@/lib/client/device";
-import { fetchReports } from "@/lib/client/functions";
+import { clearSession, getMyReportIds, getSession } from "@/lib/client/device";
+import { fetchMyReports, fetchReports } from "@/lib/client/functions";
 import { formatShortDate, plural } from "@/lib/format";
 
 // Screen 9: reports sent from this device.
 export default function MyReportsPage() {
+  const router = useRouter();
   const [reports, setReports] = useState<ReportDTO[] | null>(null);
+  const [phone, setPhone] = useState<string | null>(null);
 
   useEffect(() => {
+    const session = getSession();
+    if (session) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only localStorage read
+      setPhone(session.phone);
+      fetchMyReports()
+        .then(setReports)
+        .catch(() => setReports([]));
+      return;
+    }
+    // Not signed in: fall back to reports sent from this device.
     const ids = getMyReportIds();
     if (ids.length === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only localStorage read
       setReports([]);
       return;
     }
@@ -34,6 +46,7 @@ export default function MyReportsPage() {
           {reports && (
             <span className="text-[15px] text-text-3">
               {reports.length} {plural(reports.length, "zgłoszenie", "zgłoszenia", "zgłoszeń")}
+              {phone && <span className="tabular"> · {phone.replace(/^\+48(\d{3})(\d{3})(\d{3})$/, "+48 $1 $2 $3")}</span>}
             </span>
           )}
         </div>
@@ -83,6 +96,17 @@ export default function MyReportsPage() {
         )}
       </div>
       <BottomActions>
+        {phone && (
+          <button
+            onClick={() => {
+              clearSession();
+              router.push("/");
+            }}
+            className="h-11 text-[15px] font-semibold text-text-2"
+          >
+            Wyloguj
+          </button>
+        )}
         <Link
           href="/"
           className="flex h-14 w-full items-center justify-center gap-2.5 rounded-[14px] bg-accent text-[17px] font-semibold text-on-accent transition-colors hover:bg-accent-hover"
