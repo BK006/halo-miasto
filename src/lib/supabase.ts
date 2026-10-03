@@ -10,12 +10,3 @@ export function supabaseBrowser(): SupabaseClient {
   );
   return browserClient;
 }
-
-// Server client: service role, bypasses RLS. Import only from route handlers.
-export function supabaseAdmin(): SupabaseClient {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } },
-  );
-}

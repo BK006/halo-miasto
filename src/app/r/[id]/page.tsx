@@ -8,6 +8,7 @@ import { Screen, Spinner, StatusBadge, TopBar, UrgencyBadge } from "@/components
 import { CATEGORIES } from "@/config/categories";
 import { unitById } from "@/config/units";
 import type { ReportDTO } from "@/lib/api-types";
+import { fetchReports } from "@/lib/client/functions";
 import { supabaseBrowser } from "@/lib/supabase";
 
 // Screen 8: report status. Updates live when the city panel changes the status.
@@ -18,10 +19,9 @@ export default function ReportStatusPage() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/reports/${id}`, { cache: "no-store" });
-    const data = (await res.json()) as { report?: ReportDTO; error?: string };
-    if (data.report) setReport(data.report);
-    else setError(data.error ?? "Nie znaleziono zgłoszenia.");
+    const [found] = await fetchReports([id]).catch(() => []);
+    if (found) setReport(found);
+    else setError("Nie znaleziono zgłoszenia.");
   }, [id]);
 
   useEffect(() => {

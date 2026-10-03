@@ -7,6 +7,7 @@ import { BottomActions, Screen, Spinner, StatusBadge } from "@/components/ui";
 import { CATEGORIES } from "@/config/categories";
 import type { ReportDTO } from "@/lib/api-types";
 import { getMyReportIds } from "@/lib/client/device";
+import { fetchReports } from "@/lib/client/functions";
 import { formatShortDate, plural } from "@/lib/format";
 
 // Screen 9: reports sent from this device.
@@ -20,9 +21,8 @@ export default function MyReportsPage() {
       setReports([]);
       return;
     }
-    fetch(`/api/reports?ids=${ids.join(",")}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d: { reports?: ReportDTO[] }) => setReports(d.reports ?? []))
+    fetchReports(ids)
+      .then(setReports)
       .catch(() => setReports([]));
   }, []);
 

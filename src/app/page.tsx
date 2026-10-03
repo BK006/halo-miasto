@@ -12,7 +12,9 @@ import { Thanks } from "@/components/flow/Thanks";
 import { Toast } from "@/components/ui";
 import type { CategoryId } from "@/config/categories";
 import { unitFor, type Unit } from "@/config/units";
-import type { AnalyzeResponse, CreateReportRequest, CreateReportResponse } from "@/lib/api-types";
+import type { CreateReportRequest, CreateReportResponse } from "@/lib/api-types";
+import { analyzePhoto } from "@/lib/client/analyze";
+import { createReport } from "@/lib/client/functions";
 import { addMyReport, getConsent, getDeviceId, setConsent } from "@/lib/client/device";
 import { preloadFaceDetector, preparePhoto, type PreparedPhoto } from "@/lib/client/image";
 import {
@@ -89,20 +91,17 @@ export default function ReportFlow() {
     abort.current = ctrl;
     setStep({ name: "analyzing", phase: "analyzing" });
     try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        signal: ctrl.signal,
-        body: JSON.stringify({
+      const data = await analyzePhoto(
+        {
           image: prepared.dataUrl,
           lat: at.lat,
           lng: at.lng,
           address: at.address,
           takenAt: takenAt.toISOString(),
           category,
-        }),
-      });
-      const data = (await res.json()) as AnalyzeResponse;
+        },
+        ctrl.signal,
+      );
       if ("error" in data) throw new Error(data.error);
       if (data.status === "retake") return setStep({ name: "retake", hint: data.hint });
       setText(data.analysis.report_text_pl);
@@ -171,12 +170,7 @@ export default function ReportFlow() {
       reportText: text.trim(),
     };
     try {
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = (await res.json()) as CreateReportResponse;
+      const data = await createReport(body);
       if ("error" in data) throw new Error(data.error);
       addMyReport(data.id);
       setStep({ name: "done", result: data, unit: unitFor(a.category) });
