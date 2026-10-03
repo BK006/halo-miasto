@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9EBEE;font-family:'Public Sans',system-ui,sans-serif;color:#14171C;-webkit-font-smoothing:antialiased}a{color:#1E56C8;text-decoration:none}a:hover{color:#1847A8;text-decoration:underline}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="width:1440px;height:900px;background:#FFFFFF;display:flex;flex-direction:column;overflow:hidden;position:relative">
+<header style="height:56px;flex:none;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid #E1E4E8">
+<div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:8px;background:#1E56C8;color:#FFFFFF;display:flex;align-items:center;justify-content:center">{{ ic16.pin }}</span><span style="font-size:17px;font-weight:700">Zgłoś to</span></div>
+<span style="width:1px;height:20px;background:#E1E4E8"></span>
+<span style="font-size:15px;color:#454B55">Panel urzędu · Zarząd Dróg Miasta Krakowa</span>
+<div style="margin-left:auto;width:320px;height:36px;border:1px solid #C9CED6;border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 12px;color:#636A75;font-size:14px">{{ ic16.search }}Szukaj po numerze lub adresie</div>
+<button style="width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#454B55;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#F4F5F7">{{ ic20.bell }}</button>
+<span style="width:32px;height:32px;border-radius:50%;background:#EBEDF0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">AK</span>
+</header>
+
+<div style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px 24px;border-bottom:1px solid #E1E4E8">
+<div style="border:1px solid #E1E4E8;border-radius:14px;padding:14px 18px;display:flex;align-items:baseline;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600;color:#636A75">Nowe dziś</span><span style="font-size:13px;color:#636A75">od 0:00</span></div><span style="font-size:32px;line-height:38px;font-weight:700;font-variant-numeric:tabular-nums">18</span></div>
+<div style="border:1px solid #E1E4E8;border-radius:14px;padding:14px 18px;display:flex;align-items:baseline;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600;color:#636A75">W realizacji</span><span style="font-size:13px;color:#636A75">przyjęte, niezamknięte</span></div><span style="font-size:32px;line-height:38px;font-weight:700;font-variant-numeric:tabular-nums">42</span></div>
+<div style="border:1px solid #E1E4E8;border-radius:14px;padding:14px 18px;display:flex;align-items:baseline;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600;color:#636A75">Średni czas reakcji</span><span style="font-size:13px;color:#636A75">wysłane → przyjęte</span></div><span style="font-size:32px;line-height:38px;font-weight:700;font-variant-numeric:tabular-nums">1 d 6 h</span></div>
+<div style="border:1px solid #E1E4E8;border-radius:14px;padding:14px 18px;display:flex;align-items:baseline;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600;color:#636A75">Najczęstsza kategoria</span><span style="font-size:13px;color:#636A75">34% w tym tygodniu</span></div><span style="font-size:20px;line-height:38px;font-weight:700;display:flex;align-items:center;gap:8px">{{ ic20.cone }}Dziura w jezdni</span></div>
+</div>
+
+<div style="flex:1;min-height:0;display:flex">
+<div style="flex:1;min-width:0;position:relative;overflow:hidden;background:#F2F3F1">
+{{ mapEl }}
+<sc-if value="{{ heat }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(255,255,255,.25)"></div><sc-for list="{{ blobs }}" as="b" hint-placeholder-count="0"><div style="position:absolute;left:{{ b.x }};top:{{ b.y }};width:{{ b.d }};height:{{ b.d }};transform:translate(-50%,-50%);border-radius:50%;background:{{ b.bg }};pointer-events:none"></div></sc-for></sc-if>
+<sc-if value="{{ pinsOn }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ pins }}" as="p" hint-placeholder-count="0"><div onClick="{{ p.select }}" style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-15px,-36px) scale({{ p.scale }});transform-origin:15px 36px;width:30px;height:30px;cursor:pointer;z-index:{{ p.z }}"><div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:{{ p.bg }};border:2px solid {{ p.ring }};box-shadow:0 1px 3px rgba(20,23,28,.3)"></div><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ p.ink }};font-variant-numeric:tabular-nums">{{ p.u }}</span></div></sc-for></sc-if>
+<div style="position:absolute;left:16px;top:16px;display:flex;padding:4px;gap:4px;background:#FFFFFF;border-radius:12px;box-shadow:0 0 0 1px rgba(20,23,28,.06),0 1px 3px rgba(20,23,28,.12)">
+<button onClick="{{ setPins }}" style="height:36px;padding:0 12px;border:0;border-radius:9px;background:{{ pinsBg }};color:{{ pinsFg }};font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer">{{ ic16.pin }}Pinezki</button>
+<button onClick="{{ setHeat }}" style="height:36px;padding:0 12px;border:0;border-radius:9px;background:{{ heatBg }};color:{{ heatFg }};font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer">{{ ic16.flame }}Mapa cieplna</button>
+</div>
+<div style="position:absolute;right:16px;top:16px;display:flex;flex-direction:column;background:#FFFFFF;border-radius:12px;box-shadow:0 0 0 1px rgba(20,23,28,.06),0 1px 3px rgba(20,23,28,.12);overflow:hidden"><button style="width:40px;height:40px;border:0;background:#FFFFFF;font-size:20px;cursor:pointer;color:#14171C">+</button><span style="height:1px;background:#E1E4E8"></span><button style="width:40px;height:40px;border:0;background:#FFFFFF;font-size:20px;cursor:pointer;color:#14171C">−</button></div>
+<div style="position:absolute;left:16px;bottom:16px;background:#FFFFFF;border-radius:12px;padding:10px 14px;box-shadow:0 0 0 1px rgba(20,23,28,.06),0 1px 3px rgba(20,23,28,.12);font-size:13px;font-weight:600;color:#454B55">
+<sc-if value="{{ pinsOn }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:16px;align-items:center"><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#C2352A"></span>Wysoka 7–10</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#E3A23B"></span>Średnia 4–6</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#23704A"></span>Niska 1–3</span></div></sc-if>
+<sc-if value="{{ heat }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center">Mniej<span style="width:120px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(194,53,42,.08),rgba(194,53,42,.7))"></span>Więcej zgłoszeń × pilność</div></sc-if>
+</div>
+</div>
+
+<div style="width:420px;flex:none;border-left:1px solid #E1E4E8;display:flex;flex-direction:column;min-height:0">
+<div style="padding:16px 20px 12px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E1E4E8">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:18px;font-weight:600">Zgłoszenia</span><span style="font-size:14px;color:#636A75;font-variant-numeric:tabular-nums">{{ count }}</span></div><span style="font-size:13px;font-weight:600;color:#454B55;display:flex;align-items:center;gap:4px">Sortuj: pilność{{ ic14.arrowDown }}</span></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ statusChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.toggle }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ c.name }}</button></sc-for></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ urgChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.toggle }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:{{ c.dot }}"></span>{{ c.name }}</button></sc-for></div>
+<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px"><sc-for list="{{ catChips }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.toggle }}" title="{{ c.name }}" style="height:32px;flex:none;padding:0 10px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">{{ c.icon }}{{ c.short }}</button></sc-for></div>
+</div>
+<div style="flex:1;overflow-y:auto">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+<div onClick="{{ r.select }}" style="display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid #EBEDF0;cursor:pointer;background:{{ r.rowBg }}">
+<div style="width:52px;height:52px;flex:none;border-radius:10px;background:repeating-linear-gradient(135deg,#E6E8EC 0 7px,#EDEFF2 7px 14px);display:flex;align-items:center;justify-content:center;color:#454B55">{{ r.icon }}</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:15px;line-height:20px;font-weight:600">{{ r.cat }}</span><span style="margin-left:auto;font-size:13px;color:#636A75;white-space:nowrap">{{ r.time }}</span></div>
+<div style="font-size:14px;line-height:20px;color:#454B55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.addr }}</div>
+<div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+<span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:999px;background:{{ r.ubg }};color:{{ r.ufg }};font-size:12px;font-weight:600;font-variant-numeric:tabular-nums"><span style="display:flex;align-items:flex-end;gap:1.5px;height:10px"><span style="width:2.5px;height:5px;border-radius:1px;background:currentColor"></span><span style="width:2.5px;height:7.5px;border-radius:1px;background:currentColor;opacity:{{ r.b2 }}"></span><span style="width:2.5px;height:10px;border-radius:1px;background:currentColor;opacity:{{ r.b3 }}"></span></span>{{ r.ulabel }}</span>
+<span style="display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:999px;background:{{ r.sbg }};color:{{ r.sfg }};font-size:12px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.sdot }}"></span>{{ r.status }}</span>
+<span style="margin-left:auto;display:flex;align-items:center;gap:4px;font-size:13px;color:#636A75;font-variant-numeric:tabular-nums">{{ r.usersIc }}{{ r.count }}</span>
+</div></div></div>
+</sc-for>
+<sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px 20px;text-align:center;font-size:15px;color:#636A75">Brak zgłoszeń dla wybranych filtrów.</div></sc-if>
+</div>
+</div>
+
+<div style="width:380px;flex:none;border-left:1px solid #E1E4E8;display:flex;flex-direction:column;min-height:0">
+<sc-if value="{{ hasSel }}" hint-placeholder-val="{{ true }}">
+<div style="height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px;border-bottom:1px solid #E1E4E8"><span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">{{ sel.no }}</span><button onClick="{{ closeSel }}" style="width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#454B55;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#F4F5F7">{{ ic20.x }}</button></div>
+<div style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px">
+<div style="height:168px;flex:none;border-radius:14px;background:repeating-linear-gradient(135deg,#E6E8EC 0 12px,#EDEFF2 12px 24px);display:flex;align-items:flex-end;padding:10px"><span style="font:500 12px ui-monospace,Menlo,monospace;color:#454B55;background:rgba(255,255,255,.85);padding:3px 6px;border-radius:4px">zdjęcie · {{ sel.catLower }}</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:8px;background:#F4F5F7;font-size:13px;font-weight:600">{{ sel.icon }}{{ sel.cat }}</span><span style="font-size:20px;line-height:26px;font-weight:600">{{ sel.addr }}</span></div>
+<div style="background:#F4F5F7;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+<span style="align-self:flex-start;display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:999px;background:{{ sel.ubg }};color:{{ sel.ufg }};font-size:13px;font-weight:600;font-variant-numeric:tabular-nums"><span style="display:flex;align-items:flex-end;gap:2px;height:12px"><span style="width:3px;height:6px;border-radius:1px;background:currentColor"></span><span style="width:3px;height:9px;border-radius:1px;background:currentColor;opacity:{{ sel.b2 }}"></span><span style="width:3px;height:12px;border-radius:1px;background:currentColor;opacity:{{ sel.b3 }}"></span></span>{{ sel.ulabel }}</span>
+<span style="font-size:14px;line-height:20px;color:#14171C">{{ sel.why }}</span></div>
+<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;font-weight:600;color:#636A75">Opis AI</span><p style="margin:0;font-size:15px;line-height:22px;text-wrap:pretty">{{ sel.desc }}</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:20px;color:#454B55">
+<div style="display:flex;gap:10px;align-items:center;color:#14171C;font-weight:600">{{ ic18.users }}{{ sel.countLabel }}</div>
+<div style="display:flex;gap:10px;align-items:center">{{ ic18.clock }}Pierwsze zgłoszenie: {{ sel.time }}</div>
+</div>
+</div>
+<div style="flex:none;padding:14px 20px 18px;border-top:1px solid #E1E4E8;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:#636A75">Status<span style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:{{ sel.sbg }};color:{{ sel.sfg }};font-size:13px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:{{ sel.sdot }}"></span>{{ sel.status }}</span></div>
+<sc-if value="{{ sel.hasPrimary }}" hint-placeholder-val="{{ true }}"><button onClick="{{ sel.primary }}" style="height:48px;width:100%;border:0;border-radius:12px;background:#1E56C8;color:#FFFFFF;font-size:16px;font-weight:600;cursor:pointer" style-hover="background:#1847A8">{{ sel.primaryLabel }}</button></sc-if>
+<button onClick="{{ sel.secondary }}" style="height:44px;width:100%;border:1px solid #C9CED6;border-radius:12px;background:#FFFFFF;color:#14171C;font-size:15px;font-weight:600;cursor:pointer" style-hover="background:#F4F5F7">{{ sel.secondaryLabel }}</button>
+</div>
+</sc-if>
+<sc-if value="{{ noSel }}" hint-placeholder-val="{{ false }}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;text-align:center;color:#636A75">{{ ic24.pin }}<span style="font-size:15px;line-height:22px">Wybierz zgłoszenie z listy lub z mapy.</span></div></sc-if>
+</div>
+</div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:#14171C;color:#FFFFFF;border-radius:14px;padding:12px 16px;font-size:15px;box-shadow:0 8px 24px rgba(20,23,28,.18)"><span style="color:#6CCB98">{{ ic20.check }}</span>{{ toastText }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;mapMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Pinezki&quot;,&quot;Mapa cieplna&quot;],&quot;default&quot;:&quot;Pinezki&quot;,&quot;tsType&quot;:&quot;'Pinezki' | 'Mapa cieplna'&quot;}}">
+class Component extends DCLogic {
+  static P = {
+    pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+    cone:'<path d="M9.3 6.2a4.55 4.55 0 0 0 5.4 0M7.9 10.7c.9.8 2.4 1.3 4.1 1.3s3.2-.5 4.1-1.3"/><path d="M13.9 3.5a1.93 1.93 0 0 0-3.8-.1l-3 10c-.1.2-.1.4-.1.6 0 1.7 2.2 3 5 3s5-1.3 5-3c0-.2 0-.4-.1-.5Z"/><path d="m7.5 12.2-4.7 2.7c-.5.3-.8.7-.8 1.1s.3.8.8 1.1l7.6 4.5c.9.5 2.1.5 3 0l7.6-4.5c.7-.3 1-.7 1-1.1s-.3-.8-.8-1.1l-4.7-2.8"/>',
+    bulb:'<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>',
+    trash:'<path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+    car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+    brush:'<path d="m14.622 17.897-10.68-2.913M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/>',
+    users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    bell:'<path d="M10.268 21a2 2 0 0 0 3.464 0M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+    arrowDown:'<path d="M12 5v14M19 12l-7 7-7-7"/>'
+  };
+  static CATS = { cone: ['Dziura w jezdni', 'Jezdnia'], bulb: ['Zepsuta latarnia', 'Latarnie'], trash: ['Nielegalne wysypisko', 'Wysypiska'], car: ['Auto blokujące bramę', 'Parkowanie'], brush: ['Graffiti', 'Graffiti'] };
+  static R = [
+    { no: 'KR-2026-000123', c: 'cone', u: 7, addr: 'ul. Karmelicka 34', lat: 50.0672, lng: 19.9297, st: 'Nowe', n: 1, time: 'dziś, 9:41', why: 'Ryzyko uszkodzenia pojazdu i wypadku rowerzysty.', desc: 'Ubytek w nawierzchni o średnicy ok. 40 cm przy prawej krawędzi pasa ruchu. Woda w zagłębieniu utrudnia ocenę głębokości.' },
+    { no: 'KR-2026-000119', c: 'bulb', u: 5, addr: 'al. Mickiewicza, przejście dla pieszych', lat: 50.0660, lng: 19.9230, st: 'Nowe', n: 2, time: 'dziś, 7:15', why: 'Słaba widoczność pieszych na przejściu po zmroku.', desc: 'Latarnia przy przejściu dla pieszych nie świeci. Po zmroku przejście jest nieoświetlone.' },
+    { no: 'KR-2026-000098', c: 'trash', u: 4, addr: 'ul. Lipowa', lat: 50.0475, lng: 19.9615, st: 'Przyjęte', n: 3, time: '29 wrz, 18:02', why: 'Brak bezpośredniego zagrożenia, odpady mogą się rozprzestrzeniać.', desc: 'Kilkanaście worków z odpadami i stare meble przy ogrodzeniu, poza miejscem wyznaczonym na odpady.' },
+    { no: 'KR-2026-000121', c: 'car', u: 6, addr: 'ul. Józefińska 8', lat: 50.0465, lng: 19.9490, st: 'Nowe', n: 1, time: 'dziś, 8:30', why: 'Uniemożliwia wjazd i wyjazd z posesji, także pojazdom ratunkowym.', desc: 'Samochód osobowy zaparkowany w poprzek bramy wjazdowej, blokuje wyjazd z posesji.' },
+    { no: 'KR-2026-000117', c: 'cone', u: 8, addr: 'ul. Kalwaryjska 40', lat: 50.0442, lng: 19.9468, st: 'Nowe', n: 6, time: 'wczoraj, 16:20', why: 'Ryzyko wypadku jednośladu przy torowisku.', desc: 'Głęboki ubytek przy torowisku tramwajowym, odsłonięte krawędzie płyt.' },
+    { no: 'KR-2026-000122', c: 'brush', u: 2, addr: 'ul. Floriańska 15', lat: 50.0634, lng: 19.9405, st: 'Nowe', n: 1, time: 'dziś, 9:05', why: 'Szkoda estetyczna, bez zagrożenia dla bezpieczeństwa.', desc: 'Napis farbą w sprayu na elewacji kamienicy, ok. 2 m².' },
+    { no: 'KR-2026-000104', c: 'bulb', u: 6, addr: 'ul. Dietla 50', lat: 50.0545, lng: 19.9440, st: 'Przyjęte', n: 2, time: '30 wrz, 21:40', why: 'Ciemny odcinek chodnika przy ruchliwej ulicy.', desc: 'Dwie sąsiednie latarnie nie świecą na odcinku ok. 60 m chodnika.' },
+    { no: 'KR-2026-000120', c: 'cone', u: 9, addr: 'rondo Mogilskie', lat: 50.0655, lng: 19.9590, st: 'Nowe', n: 5, time: 'dziś, 6:58', why: 'Bezpośrednie zagrożenie dla pojazdów na ruchliwym rondzie.', desc: 'Zapadnięta studzienka kanalizacyjna na pasie ruchu, różnica poziomów ok. 10 cm.' },
+    { no: 'KR-2026-000087', c: 'trash', u: 3, addr: 'Bulwar Czerwieński', lat: 50.0530, lng: 19.9330, st: 'Zrealizowane', n: 2, time: '27 wrz, 11:12', why: 'Odpady przy ścieżce rowerowej, bez zagrożenia.', desc: 'Porzucone opony przy ścieżce rowerowej.' },
+    { no: 'KR-2026-000091', c: 'brush', u: 1, addr: 'ul. Starowiślna 30', lat: 50.0570, lng: 19.9455, st: 'Zrealizowane', n: 1, time: '28 wrz, 10:03', why: 'Szkoda estetyczna.', desc: 'Niewielki napis na skrzynce elektrycznej.' },
+    { no: 'KR-2026-000118', c: 'car', u: 7, addr: 'ul. Krowoderska 12', lat: 50.0690, lng: 19.9360, st: 'Nowe', n: 1, time: 'wczoraj, 19:45', why: 'Blokuje wyjazd z posesji i przejście pieszym z wózkami.', desc: 'Auto zaparkowane na chodniku przed bramą, blokuje wyjazd i przejście.' }
+  ];
+  static C = { lat: 50.0575, lng: 19.9420, zoom: 14.3, w: 640, h: 724 };
+  state = { reports: Component.R.map(r => ({ ...r })), sel: 'KR-2026-000120', mode: null, fStatus: 'Wszystkie', fUrg: [], fCat: null, toast: null };
+  mk(n, s = 20, sw = 1.75) { return React.createElement('svg', { key: n, width: s, height: s, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round', style: { display: 'block', flex: 'none' }, dangerouslySetInnerHTML: { __html: Component.P[n] } }); }
+  set(s, sw) { const o = {}; for (const k in Component.P) o[k] = this.mk(k, s, sw); return o; }
+  proj(lat, lng) { const { zoom } = Component.C, s = 256 * Math.pow(2, zoom), r = lat * Math.PI / 180; return [(lng + 180) / 360 * s, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * s]; }
+  origin() { const C = Component.C, [cx, cy] = this.proj(C.lat, C.lng); return [cx - C.w / 2, cy - C.h / 2]; }
+  static ST = {
+    river: [[50.0540,19.9000],[50.0545,19.9250],[50.0520,19.9320],[50.0500,19.9380],[50.0490,19.9440],[50.0500,19.9520],[50.0485,19.9600],[50.0460,19.9800]],
+    main: [[[50.0525,19.9300],[50.0580,19.9255],[50.0640,19.9235],[50.0690,19.9250],[50.0720,19.9330],[50.0725,19.9420],[50.0700,19.9500]], [[50.0545,19.9330],[50.0525,19.9400],[50.0520,19.9470],[50.0540,19.9520]], [[50.0645,19.9440],[50.0650,19.9530],[50.0655,19.9590],[50.0660,19.9800]], [[50.0490,19.9300],[50.0360,19.9270]], [[50.0660,19.9230],[50.0690,19.9000]], [[50.0560,19.9500],[50.0590,19.9600],[50.0630,19.9800]], [[50.0470,19.9470],[50.0430,19.9650],[50.0410,19.9800]], [[50.0700,19.9500],[50.0780,19.9550]], [[50.0655,19.9590],[50.0760,19.9620]], [[50.0525,19.9300],[50.0500,19.9100]]],
+    minor: [[[50.0655,19.9375],[50.0650,19.9420],[50.0620,19.9445],[50.0585,19.9420],[50.0545,19.9375],[50.0560,19.9340],[50.0600,19.9330],[50.0640,19.9345],[50.0655,19.9375]], [[50.0640,19.9345],[50.0690,19.9270]], [[50.0655,19.9375],[50.0720,19.9350]], [[50.0610,19.9375],[50.0545,19.9375]], [[50.0617,19.9390],[50.0650,19.9415]], [[50.0590,19.9430],[50.0500,19.9500]], [[50.0470,19.9440],[50.0380,19.9480]], [[50.0490,19.9460],[50.0440,19.9520]], [[50.0480,19.9580],[50.0465,19.9660]], [[50.0617,19.9330],[50.0640,19.9200]], [[50.0600,19.9420],[50.0610,19.9520]], [[50.0700,19.9300],[50.0770,19.9310]], [[50.0560,19.9250],[50.0545,19.9330]], [[50.0620,19.9520],[50.0700,19.9500]], [[50.0450,19.9350],[50.0430,19.9450]], [[50.0520,19.9550],[50.0490,19.9620]]]
+  };
+  mapEl() {
+    const C = Component.C, [L, T] = this.origin(), ST = Component.ST;
+    const pts = a => a.map(([la, ln]) => { const [x, y] = this.proj(la, ln); return (x - L).toFixed(1) + ',' + (y - T).toFixed(1); }).join(' ');
+    const el = [React.createElement('polyline', { key: 'rv', points: pts(ST.river), fill: 'none', stroke: '#DCE3EA', strokeWidth: 30, strokeLinecap: 'round', strokeLinejoin: 'round' })];
+    [['main', 9], ['minor', 5]].forEach(([g, sw]) => ST[g].forEach((a, i) => el.push(React.createElement('polyline', { key: g + 'o' + i, points: pts(a), fill: 'none', stroke: '#E1E4E8', strokeWidth: sw + 2, strokeLinecap: 'round', strokeLinejoin: 'round' }))));
+    [['main', 9], ['minor', 5]].forEach(([g, sw]) => ST[g].forEach((a, i) => el.push(React.createElement('polyline', { key: g + 'i' + i, points: pts(a), fill: 'none', stroke: '#FFFFFF', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }))));
+    return React.createElement('div', { style: { position: 'absolute', inset: 0, overflow: 'hidden', background: '#F2F3F1' } },
+      React.createElement('svg', { width: C.w, height: C.h, style: { position: 'absolute', inset: 0, display: 'block' } }, el),
+      React.createElement('span', { style: { position: 'absolute', right: 16, bottom: 16, fontSize: 11, color: '#636A75' } }, 'mapa poglądowa'));
+  }
+  U(n) { return n >= 7 ? { ufg: '#B02A1E', ubg: '#FBE8E5', pin: '#C2352A', ink: '#FFFFFF', l: 'wysoka', g: 'high', b2: 1, b3: 1 } : n >= 4 ? { ufg: '#8A5300', ubg: '#FBEFD9', pin: '#E3A23B', ink: '#14171C', l: 'średnia', g: 'mid', b2: 1, b3: .25 } : { ufg: '#23704A', ubg: '#E6F2EB', pin: '#23704A', ink: '#FFFFFF', l: 'niska', g: 'low', b2: .25, b3: .25 }; }
+  osoby(n) { const m10 = n % 10, m100 = n % 100; return n === 1 ? 'Zgłosiła 1 osoba' : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? `Zgłosiły ${n} osoby` : `Zgłosiło ${n} osób`; }
+  setStatus(no, st) { this.setState(s => ({ reports: s.reports.map(r => r.no === no ? { ...r, st } : r), toast: 'Status zmieniony: ' + st })); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: null }), 2200); }
+  componentWillUnmount() { clearTimeout(this.t); }
+  chip(on) { return { bg: on ? '#14171C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#14171C', border: on ? '#14171C' : '#C9CED6' }; }
+  renderVals() {
+    const S = { 'Nowe': ['#454B55', '#EEF0F3', '#8A919C'], 'Wysłane': ['#1A4AAD', '#EBF1FC', '#1E56C8'], 'Przyjęte': ['#6234B8', '#F1ECFB', '#7A4BD6'], 'Zrealizowane': ['#23704A', '#E6F2EB', '#2E8A5A'] };
+    const st = this.state, mode = st.mode ?? this.props.mapMode ?? 'Pinezki', heat = mode === 'Mapa cieplna';
+    const [L, T] = this.origin();
+    const deco = r => { const u = this.U(r.u), s = S[r.st], [px, py] = this.proj(r.lat, r.lng); return { ...r, ...u, cat: Component.CATS[r.c][0], catLower: Component.CATS[r.c][0].toLowerCase(), ulabel: r.u + '/10 · ' + u.l, status: r.st, sfg: s[0], sbg: s[1], sdot: s[2], px: px - L, py: py - T, count: r.n, countLabel: this.osoby(r.n), icon: this.mk(r.c, 20), select: () => this.setState({ sel: r.no }) }; };
+    const all = st.reports.map(deco);
+    const vis = all.filter(r => (st.fStatus === 'Wszystkie' || r.st === st.fStatus) && (!st.fUrg.length || st.fUrg.includes(r.g)) && (!st.fCat || r.c === st.fCat)).sort((a, b) => b.u - a.u || b.n - a.n);
+    const selR = all.find(r => r.no === st.sel);
+    const usersIc = this.mk('users', 14);
+    let sel = {};
+    if (selR) {
+      const next = { 'Nowe': ['Przyjmij do realizacji', 'Przyjęte', 'Przekaż innej jednostce', null], 'Przyjęte': ['Oznacz jako zrealizowane', 'Zrealizowane', 'Cofnij do nowych', 'Nowe'], 'Zrealizowane': [null, null, 'Otwórz ponownie', 'Przyjęte'] }[selR.st] || [null, null, 'Cofnij', 'Nowe'];
+      sel = { ...selR, icon: this.mk(selR.c, 16), hasPrimary: !!next[0], primaryLabel: next[0], primary: () => this.setStatus(selR.no, next[1]), secondaryLabel: next[2], secondary: () => next[3] ? this.setStatus(selR.no, next[3]) : this.setState({ toast: 'Przekazano do Straży Miejskiej' }) };
+    }
+    return {
+      ic14: this.set(14, 2), ic16: this.set(16), ic18: this.set(18), ic20: this.set(20), ic24: this.set(24),
+      mapEl: this.mapEl(), heat, pinsOn: !heat,
+      setPins: () => this.setState({ mode: 'Pinezki' }), setHeat: () => this.setState({ mode: 'Mapa cieplna' }),
+      pinsBg: heat ? 'transparent' : '#14171C', pinsFg: heat ? '#14171C' : '#FFFFFF', heatBg: heat ? '#14171C' : 'transparent', heatFg: heat ? '#FFFFFF' : '#14171C',
+      pins: vis.slice().reverse().map(r => ({ ...r, x: r.px + 'px', y: r.py + 'px', bg: r.pin, ring: r.no === st.sel ? '#14171C' : '#FFFFFF', scale: r.no === st.sel ? 1.25 : 1, z: r.no === st.sel ? 5 : 1 })),
+      blobs: vis.map(r => { const d = 90 + r.n * 22 + r.u * 6; return { x: r.px + 'px', y: r.py + 'px', d: d + 'px', bg: `radial-gradient(circle, rgba(194,53,42,${(0.25 + r.u * 0.04).toFixed(2)}) 0%, rgba(194,53,42,0) 70%)` }; }),
+      count: vis.length, empty: !vis.length,
+      rows: vis.map(r => ({ ...r, usersIc, rowBg: r.no === st.sel ? '#EEF3FD' : '#FFFFFF' })),
+      statusChips: ['Wszystkie', 'Nowe', 'Przyjęte', 'Zrealizowane'].map(name => ({ name, ...this.chip(st.fStatus === name), toggle: () => this.setState({ fStatus: name }) })),
+      urgChips: [['high', 'Wysoka 7–10', '#C2352A'], ['mid', 'Średnia 4–6', '#E3A23B'], ['low', 'Niska 1–3', '#23704A']].map(([g, name, dot]) => { const on = st.fUrg.includes(g); return { name, dot, ...this.chip(on), toggle: () => this.setState(s => ({ fUrg: on ? s.fUrg.filter(x => x !== g) : [...s.fUrg, g] })) }; }),
+      catChips: [[null, 'Wszystkie']].concat(Object.keys(Component.CATS).map(k => [k, Component.CATS[k][1]])).map(([k, short]) => ({ short, name: k ? Component.CATS[k][0] : 'Wszystkie kategorie', icon: k ? this.mk(k, 16) : null, ...this.chip(st.fCat === k), toggle: () => this.setState({ fCat: k }) })),
+      hasSel: !!selR, noSel: !selR, sel, closeSel: () => this.setState({ sel: null }),
+      toast: !!st.toast, toastText: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

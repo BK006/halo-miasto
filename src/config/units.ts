@@ -4,15 +4,58 @@ import type { CategoryId } from "./categories";
 // Unit assignments are a prototype assumption and must be verified with the city.
 // Addresses are fake: in demo mode every e-mail goes to DEMO_EMAIL_TO instead.
 
-export type Unit = { id: string; name: string; email: string };
+export type Unit = {
+  id: string;
+  name: string;
+  // Genitive form for "Trafiło do …".
+  nameGen: string;
+  short: string;
+  email: string;
+};
 
 export const UNITS = {
-  zdmk: { id: "zdmk", name: "Zarząd Dróg Miasta Krakowa", email: "zdmk@demo.zglos.to" },
-  sm: { id: "sm", name: "Straż Miejska Miasta Krakowa", email: "straz@demo.zglos.to" },
-  zzm: { id: "zzm", name: "Zarząd Zieleni Miejskiej w Krakowie", email: "zielen@demo.zglos.to" },
-  mpwik: { id: "mpwik", name: "MPWiK w Krakowie", email: "mpwik@demo.zglos.to" },
-  mpo: { id: "mpo", name: "MPO Kraków", email: "mpo@demo.zglos.to" },
-  um: { id: "um", name: "Urząd Miasta Krakowa – Biuro Interwencji", email: "interwencje@demo.zglos.to" },
+  zdmk: {
+    id: "zdmk",
+    name: "Zarząd Dróg Miasta Krakowa",
+    nameGen: "Zarządu Dróg Miasta Krakowa",
+    short: "ZDMK",
+    email: "zdmk@demo.zglos.to",
+  },
+  sm: {
+    id: "sm",
+    name: "Straż Miejska Miasta Krakowa",
+    nameGen: "Straży Miejskiej Miasta Krakowa",
+    short: "Straży Miejskiej",
+    email: "straz@demo.zglos.to",
+  },
+  zzm: {
+    id: "zzm",
+    name: "Zarząd Zieleni Miejskiej w Krakowie",
+    nameGen: "Zarządu Zieleni Miejskiej w Krakowie",
+    short: "ZZM",
+    email: "zielen@demo.zglos.to",
+  },
+  mpwik: {
+    id: "mpwik",
+    name: "MPWiK w Krakowie",
+    nameGen: "MPWiK w Krakowie",
+    short: "MPWiK",
+    email: "mpwik@demo.zglos.to",
+  },
+  mpo: {
+    id: "mpo",
+    name: "MPO w Krakowie",
+    nameGen: "MPO w Krakowie",
+    short: "MPO",
+    email: "mpo@demo.zglos.to",
+  },
+  um: {
+    id: "um",
+    name: "Urząd Miasta Krakowa – Biuro Interwencji",
+    nameGen: "Urzędu Miasta Krakowa – Biura Interwencji",
+    short: "UMK",
+    email: "interwencje@demo.zglos.to",
+  },
 } as const satisfies Record<string, Unit>;
 
 export type UnitId = keyof typeof UNITS;
@@ -33,4 +76,8 @@ export const ROUTING: Record<CategoryId, UnitId> = {
 
 export function unitFor(category: CategoryId): Unit {
   return UNITS[ROUTING[category]];
+}
+
+export function unitById(id: string): Unit | undefined {
+  return (UNITS as Record<string, Unit>)[id];
 }

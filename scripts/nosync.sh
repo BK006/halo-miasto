@@ -1,6 +1,7 @@
 #!/bin/sh
 # npm replaces the node_modules symlink with a real dir on install.
 # Move it back into node_modules.nosync so iCloud leaves it alone. Safe to run anytime.
+# Runs automatically after a bare `npm install`; after `npm install <pkg>` run `npm run nosync`.
 set -e
 # Only needed on a local iCloud-synced Mac; never touch deps on CI/Vercel.
 [ -n "$CI$VERCEL" ] && exit 0

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { analyzePhoto } from "@/lib/ai";
 import { MIN_CONFIDENCE, urgencyOf } from "@/lib/domain";
 import { unitFor } from "@/config/units";
-import { PLATES_ALLOWED } from "@/config/categories";
+import { CATEGORY_IDS, PLATES_ALLOWED } from "@/config/categories";
 
 const BodySchema = z.object({
   image: z.string().startsWith("data:image/"),
@@ -10,6 +10,7 @@ const BodySchema = z.object({
   lng: z.number(),
   address: z.string().default(""),
   takenAt: z.string().optional(),
+  category: z.enum(CATEGORY_IDS).optional(),
 });
 
 // Photo → structured analysis + drafted report. Nothing is stored here;
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Nieprawidłowe dane zdjęcia." }, { status: 400 });
   }
 
-  const { image, lat, lng, address, takenAt } = body.data;
+  const { image, lat, lng, address, takenAt, category } = body.data;
 
   try {
     const analysis = await analyzePhoto({
@@ -29,9 +30,11 @@ export async function POST(request: Request) {
       lng,
       address: address || "nieznany adres",
       takenAt: takenAt ? new Date(takenAt) : new Date(),
+      forcedCategory: category,
     });
+    if (category) analysis.category = category;
 
-    if (!analysis.is_city_issue || analysis.confidence < MIN_CONFIDENCE) {
+    if (!category && (!analysis.is_city_issue || analysis.confidence < MIN_CONFIDENCE)) {
       return Response.json({
         status: "retake",
         hint: analysis.retake_hint_pl || "Spróbuj zrobić zdjęcie z bliska, w dobrym świetle, tak żeby problem był na środku kadru.",

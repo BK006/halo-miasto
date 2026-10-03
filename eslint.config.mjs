@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // iCloud-excluded dependency/build dirs (see .gitignore).
     "*.nosync/**",
+    // Claude Design export (reference only, not app code).
+    "design/**",
   ]),
 ]);
 

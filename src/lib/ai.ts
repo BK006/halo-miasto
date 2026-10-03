@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { z } from "zod";
-import { CATEGORIES } from "@/config/categories";
+import { CATEGORIES, type CategoryId } from "@/config/categories";
 import { ROUTING, UNITS } from "@/config/units";
 import { AnalysisSchema, type Analysis } from "@/lib/domain";
 
@@ -48,13 +48,18 @@ export type AnalyzeInput = {
   lat: number;
   lng: number;
   takenAt: Date;
+  // Set when the user picked the category by hand after a low-confidence result.
+  forcedCategory?: CategoryId;
 };
 
 export async function analyzePhoto(input: AnalyzeInput): Promise<Analysis> {
   client ??= new OpenAI();
 
   const when = input.takenAt.toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
-  const context = `Adres: ${input.address}\nWspółrzędne: ${input.lat.toFixed(6)}, ${input.lng.toFixed(6)}\nData zdjęcia: ${when}`;
+  let context = `Adres: ${input.address}\nWspółrzędne: ${input.lat.toFixed(6)}, ${input.lng.toFixed(6)}\nData zdjęcia: ${when}`;
+  if (input.forcedCategory) {
+    context += `\nThe resident confirmed the category is "${input.forcedCategory}". Use it, set is_city_issue to true and draft the report even if the photo is unclear.`;
+  }
 
   const response = await client.responses.create({
     model: MODEL,

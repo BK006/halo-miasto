@@ -1,34 +1,133 @@
 @import "tailwindcss";
 
-/* Placeholder tokens – will be replaced by the Claude Design system. */
+/* Design system tokens (Claude Design: "Zgłoś to · Design system"). */
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --muted: #6b6b6b;
-  --surface: #f4f4f5;
-  --border: #e4e4e7;
-  --accent: #111111;
-  --accent-foreground: #ffffff;
-  --urgency-low: #15803d;
-  --urgency-medium: #b45309;
-  --urgency-high: #b91c1c;
+  --bg: #ffffff;
+  --surface: #f4f5f7;
+  --surface-2: #ebedf0;
+  --line: #e1e4e8;
+  --field: #c9ced6;
+  --text-3: #636a75;
+  --text-2: #454b55;
+  --text-1: #14171c;
+  --disabled: #8d95a1;
+
+  --accent: #1e56c8;
+  --accent-hover: #1847a8;
+  --accent-active: #143c8e;
+  --accent-bg: #ebf1fc;
+  --accent-ring: #d6e2fa;
+  --on-accent: #ffffff;
+
+  --success: #23704a;
+  --success-bg: #e6f2eb;
+  --warning: #8a5300;
+  --warning-bg: #fbefd9;
+  --danger: #b02a1e;
+  --danger-bg: #fbe8e5;
+
+  --pin-low: #23704a;
+  --pin-medium: #e3a23b;
+  --pin-high: #c2352a;
+
+  --st-new: #454b55;
+  --st-new-bg: #eef0f3;
+  --st-new-dot: #8a919c;
+  --st-sent: #1a4aad;
+  --st-sent-bg: #ebf1fc;
+  --st-sent-dot: #1e56c8;
+  --st-accepted: #6234b8;
+  --st-accepted-bg: #f1ecfb;
+  --st-accepted-dot: #7a4bd6;
+  --st-resolved: #23704a;
+  --st-resolved-bg: #e6f2eb;
+  --st-resolved-dot: #2e8a5a;
+
+  --toast: #14171c;
+  --shadow-float: 0 0 0 1px rgba(20, 23, 28, 0.06), 0 1px 3px rgba(20, 23, 28, 0.12);
+  --shadow-sheet: 0 -8px 32px rgba(20, 23, 28, 0.1);
+  --hatch-a: #e6e8ec;
+  --hatch-b: #edeff2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #1a1d23;
+    --surface-2: #23272e;
+    --line: #2a2f37;
+    --field: #3a404a;
+    --text-3: #8d95a1;
+    --text-2: #bcc2cb;
+    --text-1: #f1f3f5;
+    --disabled: #5c636e;
+
+    --accent: #5b8def;
+    --accent-hover: #7aa3f2;
+    --accent-active: #4a7bdc;
+    --accent-bg: #1a2540;
+    --accent-ring: #24365e;
+    --on-accent: #0b1020;
+
+    --success: #6ccb98;
+    --success-bg: #15291f;
+    --warning: #f0b54f;
+    --warning-bg: #33260f;
+    --danger: #ff8a7e;
+    --danger-bg: #3a1a17;
+
+    --st-new: #bcc2cb;
+    --st-new-bg: #262a31;
+    --st-new-dot: #bcc2cb;
+    --st-sent: #8fb3ff;
+    --st-sent-bg: #1a2540;
+    --st-sent-dot: #8fb3ff;
+    --st-accepted: #c3a8ff;
+    --st-accepted-bg: #2a2140;
+    --st-accepted-dot: #c3a8ff;
+    --st-resolved: #6ccb98;
+    --st-resolved-bg: #15291f;
+    --st-resolved-dot: #6ccb98;
+
+    --toast: #2a2f37;
+    --hatch-a: #23272e;
+    --hatch-b: #272b33;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
+  --color-bg: var(--bg);
   --color-surface: var(--surface);
-  --color-border: var(--border);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-field: var(--field);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-disabled: var(--disabled);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --font-sans: var(--font-inter);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-bg: var(--accent-bg);
+  --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: var(--font-public-sans);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text-1);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-public-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
@@ -38,4 +137,76 @@ input,
 textarea,
 select {
   font-size: 16px;
+}
+
+button {
+  font-family: inherit;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.hatch {
+  background: repeating-linear-gradient(135deg, var(--hatch-a) 0 12px, var(--hatch-b) 12px 24px);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes zt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes zt-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: zt-rise 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+
+/* Leaflet: muted OSM tiles that match the design palette. */
+.zt-tiles {
+  filter: grayscale(0.85) contrast(0.92) brightness(1.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .zt-tiles {
+    filter: invert(1) hue-rotate(180deg) grayscale(0.85) brightness(0.85) contrast(0.9);
+  }
+}
+
+.leaflet-container {
+  background: var(--surface);
+  font-family: inherit;
+}
+
+/* Leaflet: keep attribution small and on-brand. */
+.leaflet-control-attribution {
+  font-size: 10px !important;
 }
