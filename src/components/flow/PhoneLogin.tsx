@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Icon } from "@/components/icons";
+import { Icon, type IconName } from "@/components/icons";
 import { BottomActions, PrimaryButton, Screen, TextButton, TopBar } from "@/components/ui";
 import { startLogin, verifyLogin } from "@/lib/client/functions";
 import type { Session } from "@/lib/client/device";
@@ -13,7 +13,17 @@ function formatPhone(digits: string): string {
 
 // Sign-in by phone number – no e-mail or password, so it works for everyone.
 // Prototype: no SMS is sent; the code is always 123-123 and the screen says so.
-export function PhoneLogin({ onDone }: { onDone: (session: Session) => void }) {
+export function PhoneLogin({
+  onDone,
+  title = "Podaj numer telefonu",
+  intro = "Bez e-maila i hasła. Twoje zgłoszenia będą przypisane do numeru, a my damy znać, gdy urząd je przyjmie.",
+  icon = "bell",
+}: {
+  onDone: (session: Session) => void;
+  title?: string;
+  intro?: string;
+  icon?: IconName;
+}) {
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [digits, setDigits] = useState("");
   const [code, setCode] = useState("");
@@ -55,13 +65,11 @@ export function PhoneLogin({ onDone }: { onDone: (session: Session) => void }) {
         <form onSubmit={submitPhone} className="flex flex-1 flex-col">
           <div className="flex flex-1 flex-col gap-7 px-6 pt-7">
             <div className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-accent-bg text-accent">
-              <Icon name="bell" size={28} />
+              <Icon name={icon} size={28} />
             </div>
             <div className="flex flex-col gap-2.5">
-              <h1 className="text-[28px] font-bold leading-[34px] tracking-[-0.01em]">Podaj numer telefonu</h1>
-              <p className="text-pretty text-base leading-6 text-text-2">
-                Bez e-maila i hasła. Twoje zgłoszenia będą przypisane do numeru, a my damy znać, gdy urząd je przyjmie.
-              </p>
+              <h1 className="text-[28px] font-bold leading-[34px] tracking-[-0.01em]">{title}</h1>
+              <p className="text-pretty text-base leading-6 text-text-2">{intro}</p>
             </div>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold">Numer telefonu</span>

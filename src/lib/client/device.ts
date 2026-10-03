@@ -6,6 +6,7 @@ const KEYS = {
   consent: "zt.consent",
   reports: "zt.reports",
   session: "zt.session",
+  workerSession: "zt.worker",
 } as const;
 
 function read(key: string): string | null {
@@ -67,6 +68,25 @@ export function setSession(session: Session) {
 export function clearSession() {
   remove(KEYS.session);
   remove(KEYS.reports);
+}
+
+// --- Field worker session (kept apart from the resident one) ----------------
+
+export function getWorkerSession(): Session | null {
+  try {
+    const s = JSON.parse(read(KEYS.workerSession) ?? "null") as Session | null;
+    return s?.token && s.phone ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setWorkerSession(session: Session) {
+  write(KEYS.workerSession, JSON.stringify(session));
+}
+
+export function clearWorkerSession() {
+  remove(KEYS.workerSession);
 }
 
 // --- Recently sent reports (fallback when not signed in) ---------------------

@@ -6,7 +6,7 @@ import { Icon } from "@/components/icons";
 import { StatusBadge, Toast, UrgencyBadge } from "@/components/ui";
 import { CATEGORIES, CATEGORY_IDS, isCategoryId, type CategoryId } from "@/config/categories";
 import { UNITS, unitById, type UnitId } from "@/config/units";
-import type { ReportDTO } from "@/lib/api-types";
+import type { PanelWorker, ReportDTO } from "@/lib/api-types";
 import { callFunction } from "@/lib/client/functions";
 import { urgencyOf, type ReportStatus, type UrgencyLevel } from "@/lib/domain";
 import { formatDayTime, formatDuration, isToday, plural } from "@/lib/format";
@@ -137,6 +137,7 @@ export default function PanelPage() {
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [handover, setHandover] = useState(false);
+  const [workers, setWorkers] = useState<PanelWorker[]>([]);
   const [busy, setBusy] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const knownIds = useRef<Set<string>>(new Set());
@@ -149,7 +150,7 @@ export default function PanelPage() {
 
   const load = useCallback(
     async (code: string, announce = false) => {
-      const data = await callFunction<{ reports?: ReportDTO[]; error?: string }>("panel", {
+      const data = await callFunction<{ reports?: ReportDTO[]; workers?: PanelWorker[]; error?: string }>("panel", {
         headers: { "x-panel-passcode": code },
       });
       if (!data.reports) {
@@ -171,6 +172,7 @@ export default function PanelPage() {
       }
       knownIds.current = new Set(list.map((r) => r.id));
       setReports(list);
+      setWorkers(data.workers ?? []);
       setLoadedAt(Date.now());
     },
     [flash],
@@ -257,7 +259,7 @@ export default function PanelPage() {
 
   const selected = (reports ?? []).find((r) => r.id === selectedId) ?? null;
 
-  async function patch(body: { status?: ReportStatus; unitId?: UnitId }, message: string) {
+  async function patch(body: { status?: ReportStatus; unitId?: UnitId; assignee?: string | null }, message: string) {
     if (!selected || !pass) return;
     setBusy(true);
     const res = await callFunction<{ ok?: boolean; error?: string }>("panel", {
@@ -453,9 +455,17 @@ export default function PanelPage() {
                       <div className="mt-[3px] flex items-center gap-1.5">
                         <UrgencyBadge priority={r.priority} />
                         <StatusBadge status={r.status} />
-                        <span className="tabular ml-auto flex items-center gap-1 text-[13px] text-text-3">
-                          <Icon name="users" size={14} />
-                          {r.reportersCount}
+                        <span className="tabular ml-auto flex items-center gap-2 text-[13px] text-text-3">
+                          {r.assignedName && r.status !== "resolved" && (
+                            <span className="flex items-center gap-1" title={`Przypisano: ${r.assignedName}`}>
+                              <Icon name="wrench" size={14} />
+                              {r.assignedName.split(" ")[0]}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Icon name="users" size={14} />
+                            {r.reportersCount}
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -483,6 +493,24 @@ export default function PanelPage() {
                 </button>
               </div>
               <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
+                {selected.resolutionPhotoUrl ? (
+                  <div className="grid flex-none grid-cols-2 gap-2">
+                    {[
+                      ["Przed", selected.photoUrl, "text-text-3"],
+                      ["Po naprawie", selected.resolutionPhotoUrl, "text-success"],
+                    ].map(([label, url, tone]) => (
+                      <figure key={label} className="flex flex-col gap-1.5">
+                        <div className="hatch h-[132px] overflow-hidden rounded-[14px]">
+                          {url && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={url} alt={label!} className="h-full w-full object-cover" />
+                          )}
+                        </div>
+                        <figcaption className={`text-[13px] font-semibold ${tone}`}>{label}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                ) : (
                 <div className="hatch flex h-[168px] flex-none items-center justify-center overflow-hidden rounded-[14px] text-text-3">
                   {selected.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -494,6 +522,7 @@ export default function PanelPage() {
                     </span>
                   )}
                 </div>
+                )}
                 <div className="flex flex-col gap-2">
                   <span className="inline-flex h-7 items-center gap-1.5 self-start rounded-lg bg-surface pr-2.5 pl-2 text-[13px] font-semibold">
                     <Icon name={CATEGORIES[selected.category].icon} size={16} />
@@ -523,6 +552,52 @@ export default function PanelPage() {
                     <Icon name="clock" size={18} />
                     Pierwsze zgłoszenie: {formatDayTime(selected.createdAt)}
                   </div>
+                </div>
+                <div className="flex flex-col gap-2 rounded-[14px] border border-line p-3.5">
+                  <span className="flex items-center gap-2 text-[13px] font-semibold text-text-3">
+                    <Icon name="wrench" size={16} />
+                    Pracownik w terenie
+                  </span>
+                  {selected.status === "resolved" ? (
+                    <div className="flex flex-col gap-1 text-sm leading-5">
+                      <span className="font-semibold">
+                        {selected.assignedName ? `Zamknięte przez: ${selected.assignedName}` : "Zamknięte w panelu"}
+                        {selected.resolvedAt && (
+                          <span className="font-normal text-text-3"> · {formatDayTime(selected.resolvedAt)}</span>
+                        )}
+                      </span>
+                      {selected.resolutionNote && <span className="text-text-2">„{selected.resolutionNote}”</span>}
+                    </div>
+                  ) : (
+                    <>
+                      <select
+                        value={selected.assignedTo ?? ""}
+                        disabled={busy}
+                        onChange={(e) => {
+                          const phone = e.target.value || null;
+                          const name = workers.find((w) => w.phone === phone)?.name;
+                          void patch({ assignee: phone }, phone ? `Przypisano: ${name}` : "Usunięto przypisanie");
+                        }}
+                        className="h-11 w-full cursor-pointer rounded-[10px] border border-field bg-bg px-3 font-medium outline-none focus:border-accent"
+                        style={{ fontSize: 15 }}
+                        aria-label="Przypisz pracownika"
+                      >
+                        <option value="">— Nie przypisano —</option>
+                        {[...workers]
+                          .sort((a, b) => Number(b.unitId === selected.unitId) - Number(a.unitId === selected.unitId))
+                          .map((w) => (
+                            <option key={w.phone} value={w.phone}>
+                              {w.name} · {unitById(w.unitId)?.short ?? w.unitId}
+                            </option>
+                          ))}
+                      </select>
+                      {selected.assignedAt && (
+                        <span className="text-[13px] text-text-3">
+                          Przypisano {formatDayTime(selected.assignedAt)}. Pracownik dostał zadanie w aplikacji.
+                        </span>
+                      )}
+                    </>
+                  )}
                 </div>
                 <details className="group">
                   <summary className="cursor-pointer text-[13px] font-semibold text-accent">Treść pisma do urzędu</summary>

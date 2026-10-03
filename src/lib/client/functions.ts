@@ -2,8 +2,8 @@
 // is used here; every secret lives in Edge Function secrets. The resident's phone
 // session (if any) travels in the `x-session` header.
 
-import type { CreateReportRequest, CreateReportResponse, ReportDTO } from "@/lib/api-types";
-import { getSession, type Session } from "./device";
+import type { CreateReportRequest, CreateReportResponse, ReportDTO, WorkerProfile, WorkerTask } from "@/lib/api-types";
+import { getSession, getWorkerSession, type Session } from "./device";
 
 const BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1`;
 const HEADERS = { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! };
@@ -45,4 +45,23 @@ export async function fetchReports(ids: string[]): Promise<ReportDTO[]> {
 export async function fetchMyReports(): Promise<ReportDTO[]> {
   const data = await callFunction<{ reports?: ReportDTO[] }>("reports", { query: "mine=1" });
   return data.reports ?? [];
+}
+
+// --- Field worker -------------------------------------------------------------
+
+function workerHeaders(): Record<string, string> {
+  const session = getWorkerSession();
+  return session ? { "x-session": session.token } : {};
+}
+
+export function fetchWorkerTasks(): Promise<{ worker?: WorkerProfile; tasks?: WorkerTask[]; error?: string }> {
+  return callFunction("worker", { headers: workerHeaders() });
+}
+
+export function closeWorkerTask(id: string, image: string, note: string): Promise<{ ok?: boolean; error?: string }> {
+  return callFunction("worker", {
+    method: "POST",
+    headers: workerHeaders(),
+    body: JSON.stringify({ id, image, note }),
+  });
 }

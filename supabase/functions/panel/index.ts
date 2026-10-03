@@ -1,7 +1,8 @@
 // Supabase Edge Function: city panel API, guarded by a shared passcode.
-//   GET                          → all reports (newest 500) with signed photo URLs and status history
+//   GET                          → reports (newest 500) with photos, history and assignment; field workers
 //   POST { id, status }          → change status (trigger logs history; residents see it live)
 //   POST { id, unitId }          → hand the report over to another unit
+//   POST { id, assignee }        → assign to a field worker (phone) or unassign (null); accepts the report
 //
 // Secrets: PANEL_PASSCODE (Edge Function secret). The passcode arrives in the
 // `x-panel-passcode` header. Prototype-grade auth – see README limitations.
@@ -65,16 +66,21 @@ Deno.serve(async (req) => {
 
 async function list() {
   const db = admin();
-  const { data, error } = await db
-    .from("reports")
-    .select(
-      "id, public_no, category, summary, priority, priority_reason, status, address, lat, lng, unit_id, report_text, reporters_count, created_at, photo_path, status_history(status, changed_at, note)",
-    )
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const [{ data, error }, { data: workers, error: wErr }] = await Promise.all([
+    db
+      .from("reports")
+      .select(
+        "id, public_no, category, summary, priority, priority_reason, status, address, lat, lng, unit_id, report_text, reporters_count, created_at, photo_path, assigned_to, assigned_at, resolution_photo_path, resolution_note, resolved_at, status_history(status, changed_at, note)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500),
+    db.from("workers").select("phone, name, unit_id").order("name"),
+  ]);
   if (error) throw error;
+  if (wErr) throw wErr;
+  const names = new Map((workers ?? []).map((w) => [w.phone, w.name]));
 
-  const paths = (data ?? []).map((r) => r.photo_path).filter(Boolean) as string[];
+  const paths = (data ?? []).flatMap((r) => [r.photo_path, r.resolution_photo_path]).filter(Boolean) as string[];
   const urls = new Map<string, string>();
   if (paths.length > 0) {
     const { data: signed } = await db.storage.from("photos").createSignedUrls(paths, SIGNED_URL_TTL_S);
@@ -82,6 +88,7 @@ async function list() {
   }
 
   return json({
+    workers: (workers ?? []).map((w) => ({ phone: w.phone, name: w.name, unitId: w.unit_id })),
     reports: (data ?? []).map((r) => ({
       id: r.id,
       publicNo: r.public_no,
@@ -99,6 +106,12 @@ async function list() {
       reportersCount: r.reporters_count,
       createdAt: r.created_at,
       photoUrl: r.photo_path ? (urls.get(r.photo_path) ?? null) : null,
+      assignedTo: r.assigned_to,
+      assignedName: r.assigned_to ? (names.get(r.assigned_to) ?? r.assigned_to) : null,
+      assignedAt: r.assigned_at,
+      resolutionPhotoUrl: r.resolution_photo_path ? (urls.get(r.resolution_photo_path) ?? null) : null,
+      resolutionNote: r.resolution_note,
+      resolvedAt: r.resolved_at,
       history: ((r.status_history ?? []) as { status: string; changed_at: string; note: string | null }[])
         .map((h) => ({ status: h.status, changedAt: h.changed_at, note: h.note }))
         .sort((a, b) => a.changedAt.localeCompare(b.changedAt)),
@@ -107,10 +120,13 @@ async function list() {
 }
 
 async function update(req: Request) {
-  const body = (await req.json().catch(() => null)) as { id?: string; status?: string; unitId?: string } | null;
+  const body = (await req.json().catch(() => null)) as
+    | { id?: string; status?: string; unitId?: string; assignee?: string | null }
+    | null;
   if (!body?.id) return json({ error: "Brak zgłoszenia." }, 400);
+  const db = admin();
 
-  const patch: Record<string, string> = {};
+  const patch: Record<string, string | null> = {};
   if (body.status !== undefined) {
     if (!STATUSES.includes(body.status)) return json({ error: "Nieprawidłowy status." }, 400);
     patch.status = body.status;
@@ -119,9 +135,23 @@ async function update(req: Request) {
     if (!UNIT_IDS.includes(body.unitId)) return json({ error: "Nieznana jednostka." }, 400);
     patch.unit_id = body.unitId;
   }
+  if (body.assignee !== undefined) {
+    if (body.assignee === null) {
+      patch.assigned_to = null;
+      patch.assigned_at = null;
+    } else {
+      const { data: worker } = await db.from("workers").select("phone").eq("phone", body.assignee).maybeSingle();
+      if (!worker) return json({ error: "Nieznany pracownik." }, 400);
+      patch.assigned_to = worker.phone;
+      patch.assigned_at = new Date().toISOString();
+      // Assigning work means the city has accepted the report.
+      const { data: current } = await db.from("reports").select("status").eq("id", body.id).maybeSingle();
+      if (current && (current.status === "new" || current.status === "sent")) patch.status = "accepted";
+    }
+  }
   if (Object.keys(patch).length === 0) return json({ error: "Brak zmian." }, 400);
 
-  const { error } = await admin().from("reports").update(patch).eq("id", body.id);
+  const { error } = await db.from("reports").update(patch).eq("id", body.id);
   if (error) throw error;
   return json({ ok: true });
 }

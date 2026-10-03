@@ -298,12 +298,12 @@ async function listReports(req: Request, url: URL) {
   const { data, error } = await db
     .from("reports")
     .select(
-      "id, public_no, category, summary, priority, priority_reason, status, address, lat, lng, unit_id, report_text, reporters_count, created_at, photo_path, status_history(status, changed_at, note)",
+      "id, public_no, category, summary, priority, priority_reason, status, address, lat, lng, unit_id, report_text, reporters_count, created_at, photo_path, resolution_photo_path, resolved_at, status_history(status, changed_at, note)",
     )
     .in("id", ids);
   if (error) throw error;
 
-  const paths = (data ?? []).map((r) => r.photo_path).filter(Boolean) as string[];
+  const paths = (data ?? []).flatMap((r) => [r.photo_path, r.resolution_photo_path]).filter(Boolean) as string[];
   const urls = new Map<string, string>();
   if (paths.length > 0) {
     const { data: signed } = await db.storage.from("photos").createSignedUrls(paths, SIGNED_URL_TTL_S);
@@ -330,6 +330,8 @@ async function listReports(req: Request, url: URL) {
         reportersCount: r.reporters_count,
         createdAt: r.created_at,
         photoUrl: r.photo_path ? (urls.get(r.photo_path) ?? null) : null,
+        resolutionPhotoUrl: r.resolution_photo_path ? (urls.get(r.resolution_photo_path) ?? null) : null,
+        resolvedAt: r.resolved_at,
         history: ((r.status_history ?? []) as { status: string; changed_at: string; note: string | null }[])
           .map((h) => ({ status: h.status, changedAt: h.changed_at, note: h.note }))
           .sort((a, b) => a.changedAt.localeCompare(b.changedAt)),

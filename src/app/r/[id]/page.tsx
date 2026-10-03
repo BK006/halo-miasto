@@ -57,14 +57,34 @@ export default function ReportStatusPage() {
     <Screen>
       <TopBar title={CATEGORIES[report.category].label} subtitle={report.publicNo} onBack={back} />
       <div className="flex flex-1 flex-col gap-[18px] px-5 pt-1 pb-[max(env(safe-area-inset-bottom),24px)]">
-        <div className="h-[172px] flex-none overflow-hidden rounded-2xl">
-          {report.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={report.photoUrl} alt="Zdjęcie zgłoszenia" className="h-full w-full object-cover" />
-          ) : (
-            <div className="hatch h-full w-full" />
-          )}
-        </div>
+        {report.resolutionPhotoUrl ? (
+          // Closed by a field worker: show the fix next to the original photo.
+          <div className="grid flex-none grid-cols-2 gap-2">
+            {[
+              ["Twoje zdjęcie", report.photoUrl, "text-text-3"],
+              ["Po naprawie", report.resolutionPhotoUrl, "text-success"],
+            ].map(([label, url, tone]) => (
+              <figure key={label} className="flex flex-col gap-1.5">
+                <div className="hatch h-[150px] overflow-hidden rounded-2xl">
+                  {url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={url} alt={label!} className="h-full w-full object-cover" />
+                  )}
+                </div>
+                <figcaption className={`text-[13px] font-semibold ${tone}`}>{label}</figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <div className="h-[172px] flex-none overflow-hidden rounded-2xl">
+            {report.photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={report.photoUrl} alt="Zdjęcie zgłoszenia" className="h-full w-full object-cover" />
+            ) : (
+              <div className="hatch h-full w-full" />
+            )}
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={report.status} />
           {report.reportersCount > 1 && (
