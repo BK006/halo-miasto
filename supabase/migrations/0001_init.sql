@@ -57,7 +57,7 @@ create table status_history (
 create index status_history_report_idx on status_history (report_id, changed_at);
 
 -- Log the initial status and every later status change; bump updated_at.
-create function log_report_status() returns trigger language plpgsql as $$
+create function log_report_status() returns trigger language plpgsql set search_path = public as $$
 begin
   insert into status_history (report_id, status) values (new.id, new.status);
   return null;
@@ -67,7 +67,7 @@ create trigger reports_status_log
   after insert on reports
   for each row execute function log_report_status();
 
-create function touch_report() returns trigger language plpgsql as $$
+create function touch_report() returns trigger language plpgsql set search_path = public as $$
 begin
   if new.status is distinct from old.status then
     insert into status_history (report_id, status) values (new.id, new.status);
@@ -83,7 +83,7 @@ create trigger reports_status_update
 -- Open duplicate of the same category within radius_m metres and window_h hours.
 create function find_duplicate(p_category text, p_lat double precision, p_lng double precision,
                                radius_m double precision, window_h int)
-returns uuid language sql stable as $$
+returns uuid language sql stable set search_path = public as $$
   select id from reports
   where category = p_category
     and status <> 'resolved'

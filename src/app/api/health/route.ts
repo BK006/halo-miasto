@@ -4,7 +4,7 @@ export function GET() {
   return Response.json({
     ok: true,
     supabase: has("NEXT_PUBLIC_SUPABASE_URL") && has("NEXT_PUBLIC_SUPABASE_ANON_KEY") && has("SUPABASE_SERVICE_ROLE_KEY"),
-    anthropic: has("ANTHROPIC_API_KEY"),
+    openai: has("OPENAI_API_KEY"),
     resend: has("RESEND_API_KEY") && has("DEMO_EMAIL_TO"),
   });
 }

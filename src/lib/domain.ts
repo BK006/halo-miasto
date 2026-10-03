@@ -32,20 +32,23 @@ export const STATUS_LABELS: Record<ReportStatus, string> = {
 
 // --- AI analysis contract ------------------------------------------------
 // Single source of truth for the JSON returned by the vision call.
+// Numeric ranges are stated in the prompt and clamped in code rather than
+// encoded in the schema, to stay within strict structured-output support.
 
 export const AnalysisSchema = z.object({
   is_city_issue: z.boolean(),
   category: z.enum(CATEGORY_IDS),
   summary_pl: z.string(),
-  priority: z.number().int().min(1).max(10),
+  priority: z.number(),
   priority_reason_pl: z.string(),
-  confidence: z.number().min(0).max(1),
+  confidence: z.number(),
   personal_data: z.object({
     faces: z.boolean(),
     license_plates: z.boolean(),
     plates_needed: z.boolean(),
   }),
   report_text_pl: z.string(),
+  retake_hint_pl: z.string(),
 });
 
 export type Analysis = z.infer<typeof AnalysisSchema>;
