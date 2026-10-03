@@ -23,11 +23,12 @@ export function urgencyOf(priority: number): UrgencyLevel {
 export const STATUSES = ["new", "sent", "accepted", "resolved"] as const;
 export type ReportStatus = (typeof STATUSES)[number];
 
-// Residents follow the report only up to "Przyjęte"; closing it is internal to the city.
+// Residents see three steps; "Rozwiązane" appears as a fourth step only once
+// a field worker has closed the report.
 export const RESIDENT_STATUSES = ["new", "sent", "accepted"] as const;
 
-export function residentStatus(status: ReportStatus): ReportStatus {
-  return status === "resolved" ? "accepted" : status;
+export function residentSteps(status: ReportStatus): ReportStatus[] {
+  return status === "resolved" ? [...RESIDENT_STATUSES, "resolved"] : [...RESIDENT_STATUSES];
 }
 
 export const STATUS_LABELS: Record<ReportStatus, string> = {
@@ -70,3 +71,8 @@ export const DUPLICATE_WINDOW_H = 72;
 export const RATE_LIMIT_PER_HOUR = 5;
 
 export const CONSENT_VERSION = "2026-10-v1";
+
+export const RESIDENT_STATUS_LABELS: Record<ReportStatus, string> = {
+  ...STATUS_LABELS,
+  resolved: "Rozwiązane",
+};

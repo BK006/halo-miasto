@@ -95,7 +95,7 @@ export const STATUS_STYLE: Record<ReportStatus, { fg: string; bg: string; dot: s
   resolved: { fg: "var(--st-resolved)", bg: "var(--st-resolved-bg)", dot: "var(--st-resolved-dot)" },
 };
 
-export function StatusBadge({ status }: { status: ReportStatus }) {
+export function StatusBadge({ status, label }: { status: ReportStatus; label?: string }) {
   const s = STATUS_STYLE[status];
   return (
     <span
@@ -103,7 +103,7 @@ export function StatusBadge({ status }: { status: ReportStatus }) {
       style={{ color: s.fg, background: s.bg }}
     >
       <span className="h-2 w-2 rounded-full" style={{ background: s.dot }} />
-      {STATUS_LABELS[status]}
+      {label ?? STATUS_LABELS[status]}
     </span>
   );
 }

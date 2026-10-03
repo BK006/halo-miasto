@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icons";
-import { RESIDENT_STATUSES, STATUS_LABELS, residentStatus, type ReportStatus } from "@/lib/domain";
+import { RESIDENT_STATUS_LABELS, residentSteps, type ReportStatus } from "@/lib/domain";
 import { formatDateTime } from "@/lib/format";
 
 const PENDING_TEXT: Record<ReportStatus, string> = {
@@ -9,7 +9,7 @@ const PENDING_TEXT: Record<ReportStatus, string> = {
   resolved: "Oczekuje na naprawę",
 };
 
-// Resident timeline: Nowe → Wysłane → Przyjęte, with the current step ringed.
+// Resident timeline: Nowe → Wysłane → Przyjęte, plus "Rozwiązane" once closed.
 export function StatusTimeline({
   status,
   history,
@@ -19,15 +19,16 @@ export function StatusTimeline({
   history: { status: ReportStatus; changedAt: string }[];
   unitShort: string;
 }) {
-  const current = RESIDENT_STATUSES.indexOf(residentStatus(status) as (typeof RESIDENT_STATUSES)[number]);
+  const steps = residentSteps(status);
+  const current = steps.indexOf(status);
   const when = new Map(history.map((h) => [h.status, h.changedAt]));
 
   return (
     <ol className="flex flex-col">
-      {RESIDENT_STATUSES.map((s, i) => {
-        const done = i < current;
+      {steps.map((s, i) => {
+        const done = i < current || (i === current && s === "resolved");
         const isCurrent = i === current && !done;
-        const last = i === RESIDENT_STATUSES.length - 1;
+        const last = i === steps.length - 1;
         const at = when.get(s);
         return (
           <li key={s} className="flex gap-3.5">
@@ -50,7 +51,7 @@ export function StatusTimeline({
             </div>
             <div className={last ? "pt-px" : "pt-px pb-4"}>
               <div className={`text-base font-semibold leading-[22px] ${done || isCurrent ? "" : "text-text-3"}`}>
-                {STATUS_LABELS[s]}
+                {RESIDENT_STATUS_LABELS[s]}
                 {isCurrent && <span className="ml-2 text-[13px] font-semibold text-accent">obecny etap</span>}
               </div>
               <div className="text-sm leading-5 text-text-3">
