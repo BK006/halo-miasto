@@ -13,7 +13,7 @@ const DEMO_CODE = "123123";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization",
+  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization, x-session",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>

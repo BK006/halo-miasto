@@ -16,7 +16,7 @@ const SIGNED_URL_TTL_S = 60 * 60;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization, x-panel-passcode",
+  "Access-Control-Allow-Headers": "apikey, content-type, x-client-info, authorization, x-panel-passcode, x-session",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>
