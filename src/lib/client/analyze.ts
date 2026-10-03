@@ -32,9 +32,8 @@ export async function analyzePhoto(input: AnalyzeInput, signal?: AbortSignal): P
   if (!parsed.success) return { error: "Nie udało się przeanalizować zdjęcia. Spróbuj ponownie." };
   const analysis = parsed.data;
 
-  // A hand-picked category skips the confidence check, but never lets through a
-  // photo that shows no city issue at all (e.g. a selfie).
-  if (!analysis.is_city_issue || (!input.category && analysis.confidence < MIN_CONFIDENCE)) {
+  // A hand-picked category always goes through – the resident has the final say.
+  if (!input.category && (!analysis.is_city_issue || analysis.confidence < MIN_CONFIDENCE)) {
     return { status: "retake", hint: analysis.retake_hint_pl || DEFAULT_HINT, analysis };
   }
 

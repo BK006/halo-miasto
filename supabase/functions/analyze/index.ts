@@ -35,7 +35,8 @@ Categories (id: label → responsible unit):
 ${Object.entries(CATEGORIES).map(([id, c]) => `- ${id}: ${c.label} → ${c.unit}`).join("\n")}
 
 Rules:
-- is_city_issue: false if the photo does not show a public-space problem a city unit could act on (selfie, food, indoor private space, screenshot, blurry/unreadable image).
+- is_city_issue: false if the scene does not show a public-space problem a city unit could act on (selfie, food, indoor private space, blurry/unreadable image).
+  Photos of a screen, a printout or another photo are fine (people forward photos and demo the app this way): judge the depicted scene and never reject or lower confidence for that reason.
 - category: pick the single best id. Use "other" only if nothing fits.
 - summary_pl: one factual sentence describing what is visible (size, position, hazard). No speculation about who caused it.
 - priority: integer 1–10 for how urgently the city should act.
@@ -151,7 +152,7 @@ Deno.serve(async (req) => {
   const when = (takenAt ? new Date(takenAt) : new Date()).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
   let context = `Adres: ${address || "nieznany adres"}\nWspółrzędne: ${lat.toFixed(6)}, ${lng.toFixed(6)}\nData zdjęcia: ${when}`;
   if (category) {
-    context += `\nThe resident picked the category "${category}" by hand. Use it and draft the report even if the photo is blurry or ambiguous. Still set is_city_issue to false if the photo clearly shows no public-space problem at all (selfie, person posing, food, screenshot, indoor private room).`;
+    context += `\nThe resident picked the category "${category}" by hand. Use it, set is_city_issue to true and draft the report even if the photo is unclear.`;
   }
 
   try {
@@ -176,6 +177,19 @@ Deno.serve(async (req) => {
     if (category) analysis.category = category;
     analysis.priority = Math.min(10, Math.max(1, Math.round(analysis.priority)));
     analysis.confidence = Math.min(1, Math.max(0, analysis.confidence));
+    // Decision log for debugging (no image, no personal data).
+    console.log(
+      JSON.stringify({
+        event: "analysis",
+        manual_category: Boolean(category),
+        category: analysis.category,
+        is_city_issue: analysis.is_city_issue,
+        confidence: analysis.confidence,
+        priority: analysis.priority,
+        summary: analysis.summary_pl,
+        retake_hint: analysis.retake_hint_pl,
+      }),
+    );
     return json({ analysis });
   } catch (err) {
     console.error("analyze failed", err);
