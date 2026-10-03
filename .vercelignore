@@ -1,0 +1,9 @@
+# Local-only dirs (iCloud workaround) and files that must not be uploaded.
+*.nosync
+node_modules
+.next
+.env*
+!.env.example
+design
+supabase
+.claude
