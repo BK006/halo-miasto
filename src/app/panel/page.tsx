@@ -101,7 +101,7 @@ function Login({ onLogin, error }: { onLogin: (code: string) => void; error: str
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-on-accent">
             <Icon name="pin" size={18} />
           </span>
-          <span className="text-lg font-bold">Zgłoś to · Panel urzędu</span>
+          <span className="text-lg font-bold">Halo Miasto · Panel urzędu</span>
         </div>
         <label className="flex flex-col gap-2">
           <span className="text-sm font-semibold">Hasło dostępu</span>
@@ -286,7 +286,7 @@ export default function PanelPage() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-on-accent">
             <Icon name="pin" size={16} />
           </span>
-          <span className="text-[17px] font-bold">Zgłoś to</span>
+          <span className="text-[17px] font-bold">Halo Miasto</span>
         </div>
         <span className="h-5 w-px bg-line" />
         <label className="flex items-center gap-1 text-[15px] text-text-2">

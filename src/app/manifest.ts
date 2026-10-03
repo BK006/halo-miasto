@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Zgłoś to",
-    short_name: "Zgłoś to",
+    name: "Halo Miasto",
+    short_name: "Halo Miasto",
     description: "Zrób zdjęcie problemu w mieście – resztą zajmie się AI.",
     lang: "pl",
     start_url: "/",

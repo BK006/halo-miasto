@@ -15,12 +15,12 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@4";
 
 const UNITS: Record<string, { name: string; email: string }> = {
-  zdmk: { name: "Zarząd Dróg Miasta Krakowa", email: "zdmk@demo.zglos.to" },
-  sm: { name: "Straż Miejska Miasta Krakowa", email: "straz@demo.zglos.to" },
-  zzm: { name: "Zarząd Zieleni Miejskiej w Krakowie", email: "zielen@demo.zglos.to" },
-  mpwik: { name: "MPWiK w Krakowie", email: "mpwik@demo.zglos.to" },
-  mpo: { name: "MPO w Krakowie", email: "mpo@demo.zglos.to" },
-  um: { name: "Urząd Miasta Krakowa – Biuro Interwencji", email: "interwencje@demo.zglos.to" },
+  zdmk: { name: "Zarząd Dróg Miasta Krakowa", email: "zdmk@demo.halomiasto.pl" },
+  sm: { name: "Straż Miejska Miasta Krakowa", email: "straz@demo.halomiasto.pl" },
+  zzm: { name: "Zarząd Zieleni Miejskiej w Krakowie", email: "zielen@demo.halomiasto.pl" },
+  mpwik: { name: "MPWiK w Krakowie", email: "mpwik@demo.halomiasto.pl" },
+  mpo: { name: "MPO w Krakowie", email: "mpo@demo.halomiasto.pl" },
+  um: { name: "Urząd Miasta Krakowa – Biuro Interwencji", email: "interwencje@demo.halomiasto.pl" },
 };
 
 const CATEGORIES: Record<string, { label: string; unit: string }> = {
@@ -259,7 +259,7 @@ async function sendEmail(r: {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: Deno.env.get("EMAIL_FROM") || "Zglos to <onboarding@resend.dev>",
+        from: Deno.env.get("EMAIL_FROM") || "Halo Miasto <onboarding@resend.dev>",
         to,
         subject: `[${r.publicNo}] ${label} – ${r.address}`,
         text,

@@ -4,7 +4,7 @@
 //   GET ?q=         → { results: Place[] }   (forward search, biased to Kraków)
 
 const NOMINATIM = "https://nominatim.openstreetmap.org";
-const HEADERS = { "User-Agent": "ZglosTo-HackYeah2026/0.1 (prototype)" };
+const HEADERS = { "User-Agent": "HaloMiasto-HackYeah2026/0.1 (prototype)" };
 // Kraków bounding box: left, top, right, bottom.
 const KRAKOW_VIEWBOX = "19.79,50.13,20.22,49.97";
 

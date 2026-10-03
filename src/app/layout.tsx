@@ -9,9 +9,9 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Zgłoś to",
+  title: "Halo Miasto",
   description: "Zrób zdjęcie problemu w mieście – resztą zajmie się AI.",
-  appleWebApp: { capable: true, title: "Zgłoś to", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Halo Miasto", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

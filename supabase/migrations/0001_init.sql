@@ -1,4 +1,4 @@
--- Zgłoś to: initial schema.
+-- Halo Miasto: initial schema.
 -- Writes go through Next.js API routes using the service role key;
 -- the browser only reads (status page, city panel) and listens via Realtime.
 

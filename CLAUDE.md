@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Zgłoś to – HackYeah 2026 (Smart City)
+# Halo Miasto – HackYeah 2026 (Smart City)
 
 Citizen snaps a photo of a city issue → OpenAI vision (Responses API, structured outputs) in the Supabase Edge Function `analyze` classifies it (category, priority 1–10, confidence, personal data) and drafts a formal report → routed to a city unit → e-mailed → citizen tracks status; city panel shows map/heatmap.
 

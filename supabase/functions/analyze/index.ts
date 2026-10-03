@@ -50,7 +50,7 @@ Rules:
 - personal_data.license_plates: any readable licence plate visible.
 - personal_data.plates_needed: true only when the plate is evidence for the report (category illegal_parking).
 - report_text_pl: a short formal report (max ~120 words) addressed to the responsible unit, in this structure:
-  "Szanowni Państwo," / one paragraph: what, where (use the address and coordinates given), when (use the date given) / one sentence asking for intervention / "Z poważaniem," / "Mieszkaniec (zgłoszenie przez aplikację Zgłoś to)".
+  "Szanowni Państwo," / one paragraph: what, where (use the address and coordinates given), when (use the date given) / one sentence asking for intervention / "Z poważaniem," / "Mieszkaniec (zgłoszenie przez aplikację Halo Miasto)".
   Do not mention faces, people or plate numbers unless plates_needed is true. Mention that a photo is attached.
 - retake_hint_pl: if is_city_issue is false or confidence < 0.6, one friendly sentence telling the user how to take a better photo; otherwise an empty string.`;
 

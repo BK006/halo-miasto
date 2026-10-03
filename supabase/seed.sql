@@ -61,7 +61,7 @@ begin
                          report_text, status, reporters_count, created_at, updated_at, is_seed)
     values (
       r.category, r.summary, r.priority, r.reason, 0.9, r.lat, r.lng, r.address, r.unit_id,
-      format(E'Szanowni Państwo,\n\nuprzejmie zgłaszam: %s Miejsce: %s (%s, %s). Proszę o interwencję. Zdjęcie w załączeniu.\n\nZ poważaniem,\nMieszkaniec (zgłoszenie przez aplikację Zgłoś to)',
+      format(E'Szanowni Państwo,\n\nuprzejmie zgłaszam: %s Miejsce: %s (%s, %s). Proszę o interwencję. Zdjęcie w załączeniu.\n\nZ poważaniem,\nMieszkaniec (zgłoszenie przez aplikację Halo Miasto)',
              r.summary, r.address, r.lat, r.lng),
       r.status::report_status, r.reporters, created, created, true
     )

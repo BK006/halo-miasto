@@ -63,7 +63,7 @@ export function Consent({ onAccept }: { onAccept: () => void }) {
         {details && (
           <div className="rise flex flex-col gap-2 rounded-2xl bg-surface p-4 text-sm leading-5 text-text-2">
             <p>
-              Administrator (w prototypie): zespół projektu Zgłoś to. Cel: przekazanie zgłoszenia do właściwej
+              Administrator (w prototypie): zespół projektu Halo Miasto. Cel: przekazanie zgłoszenia do właściwej
               jednostki miasta (art. 6 ust. 1 lit. a RODO – zgoda).
             </p>
             <p>
