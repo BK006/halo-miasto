@@ -183,6 +183,16 @@ export default function PanelPage() {
     [flash],
   );
 
+  function logout() {
+    try {
+      sessionStorage.removeItem(PASS_KEY);
+    } catch {}
+    setPass(null);
+    setReports(null);
+    setSelectedId(null);
+    setAuthError(null);
+  }
+
   function login(code: string) {
     setAuthError(null);
     setPass(code);
@@ -325,6 +335,12 @@ export default function PanelPage() {
             style={{ fontSize: 14 }}
           />
         </div>
+        <button
+          onClick={logout}
+          className="ml-auto flex h-9 flex-none items-center rounded-[10px] px-3 text-sm font-semibold text-text-2 transition-[background-color,transform] duration-150 hover:bg-surface active:scale-[0.97] md:ml-2"
+        >
+          Wyloguj
+        </button>
       </header>
 
       {/* KPIs */}
