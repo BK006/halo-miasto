@@ -131,6 +131,8 @@ export default function PanelPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"pins" | "heat">("pins");
   const [fStatus, setFStatus] = useState<StatusFilter>("open");
+  // Newest first by default, so a report sent during the demo lands on top.
+  const [sortBy, setSortBy] = useState<"newest" | "priority">("newest");
   const [fUrg, setFUrg] = useState<UrgencyLevel[]>([]);
   const [fCat, setFCat] = useState<CategoryId | null>(null);
   const [fUnit, setFUnit] = useState<UnitId | "all">("all");
@@ -168,7 +170,10 @@ export default function PanelPage() {
       }));
       if (announce) {
         const fresh = list.find((r) => !knownIds.current.has(r.id));
-        if (fresh) flash(`Nowe zgłoszenie ${fresh.publicNo}: ${CATEGORIES[fresh.category].label}`);
+        if (fresh) {
+          flash(`Nowe zgłoszenie ${fresh.publicNo}: ${CATEGORIES[fresh.category].label}`);
+          setSelectedId(fresh.id);
+        }
       }
       knownIds.current = new Set(list.map((r) => r.id));
       setReports(list);
@@ -230,8 +235,12 @@ export default function PanelPage() {
       .filter((r) => fUrg.length === 0 || fUrg.includes(urgencyOf(r.priority)))
       .filter((r) => !fCat || r.category === fCat)
       .filter((r) => !q || r.publicNo.toLowerCase().includes(q) || (r.address ?? "").toLowerCase().includes(q))
-      .sort((a, b) => b.priority - a.priority || b.reportersCount - a.reportersCount || b.createdAt.localeCompare(a.createdAt));
-  }, [unitScoped, fStatus, fUrg, fCat, query]);
+      .sort((a, b) =>
+        sortBy === "newest"
+          ? b.createdAt.localeCompare(a.createdAt)
+          : b.priority - a.priority || b.reportersCount - a.reportersCount || b.createdAt.localeCompare(a.createdAt),
+      );
+  }, [unitScoped, fStatus, fUrg, fCat, query, sortBy]);
 
   const kpis = useMemo(() => {
     const newToday = unitScoped.filter((r) => isToday(r.createdAt)).length;
@@ -393,7 +402,13 @@ export default function PanelPage() {
                 <span className="text-lg font-semibold">Zgłoszenia</span>
                 <span className="tabular text-sm text-text-3">{visible.length}</span>
               </div>
-              <span className="text-[13px] font-semibold text-text-2">Sortuj: pilność ↓</span>
+              <button
+                onClick={() => setSortBy((s) => (s === "newest" ? "priority" : "newest"))}
+                className="rounded-lg px-2 py-1 text-[13px] font-semibold text-text-2 transition-colors hover:bg-surface"
+                title="Zmień sortowanie"
+              >
+                Sortuj: {sortBy === "newest" ? "najnowsze" : "pilność"} ↓
+              </button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {STATUS_FILTERS.map((f) => (
